@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using LevelGenerator;
 using LevelGenerator.Tiles;
 
 namespace Bounce
@@ -26,7 +27,35 @@ namespace Bounce
             this.tile = tile;
 
             // Set the data based on the type
-            
+            switch (tile.type)
+            {
+                // Air tiles
+                case TileType.NormalAir:
+                case TileType.Flowers:
+                case TileType.Mushrooms:
+                case TileType.Weeds:
+
+                // Ground tiles
+                case TileType.Brick:
+                case TileType.Dirt:
+                case TileType.Grass:
+                case TileType.Stone:
+
+                // Trap tiles
+                case TileType.BlackRose:
+                case TileType.Boulder:
+                case TileType.Spikes:
+
+                // Treasure tiles
+                case TileType.Gold:
+                case TileType.Chest:
+
+                // Enemy tiles
+                case TileType.Skeleton:
+                    break;
+
+            }
+
         }
 
         // public void Init(Tile tile)

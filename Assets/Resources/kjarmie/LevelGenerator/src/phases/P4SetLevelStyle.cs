@@ -110,6 +110,8 @@ namespace LevelGenerator.Phases
                 switch (archetype)
                 {
                     case TileArchetype.Air:
+                    case TileArchetype.Start:
+                    case TileArchetype.End:
                         possibilities.Add(TileType.Flowers);
                         possibilities.Add(TileType.Mushrooms);
                         possibilities.Add(TileType.Weeds);
@@ -130,6 +132,7 @@ namespace LevelGenerator.Phases
                         possibilities.Add(TileType.Chest);
                         break;
                     case TileArchetype.Enemy:
+                        possibilities.Add(TileType.Skeleton);
                         break;
                     default:
                         break;
@@ -230,6 +233,8 @@ namespace LevelGenerator.Phases
                     switch (archetype)
                     {
                         case TileArchetype.Air:
+                        case TileArchetype.Start:
+                        case TileArchetype.End:
                             possibilities.Add(TileType.Flowers);
                             possibilities.Add(TileType.Mushrooms);
                             possibilities.Add(TileType.Weeds);

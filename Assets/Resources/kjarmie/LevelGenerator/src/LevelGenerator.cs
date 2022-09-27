@@ -291,10 +291,11 @@ namespace LevelGenerator
         /// <summary>
         /// Will produce the final output file containing the information needed for producing the game level.
         /// </summary>
-        private static void PrintFinalGrid(String file_name) {
+        private static void PrintFinalGrid(String file_name)
+        {
             // Create new directory
             //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P4\" + seed + @"\";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;
@@ -306,15 +307,40 @@ namespace LevelGenerator
 
             StreamWriter writer = new StreamWriter(new_file);
 
-            for (int i = 0; i < LevelGenerator.rows_in_level; i++)
+            for (int i = 0; i < rows_in_level; i++)
             {
-                for (int j = 0; j < LevelGenerator.cols_in_level; j++)
-                {
-                    // Print the string as TileArchetypeTileType
-                    String tile = "" + (char)LevelGenerator.level_tile_grid[i, j] + (char)final_tile_grid[i, j];
+                int j;
+                String tile;
+                char archetype;
+                char type;
 
-                    writer.Write(tile);
+                TileArchetype _archetype;
+                TileType _type;
+                for (j = 0; j < cols_in_level - 1; j++)
+                {
+                    // Get the type and archetype as chars
+                    _archetype = level_tile_grid[i, j];
+                    _type = final_tile_grid[i, j];
+                    archetype = (char)level_tile_grid[i, j];
+                    type = (char)final_tile_grid[i, j];
+
+                    // Print the string as TileArchetypeTileType
+                    tile = "";
+                    tile = String.Concat(tile, archetype);
+                    tile = String.Concat(tile, type);
+
+                    writer.Write(tile + ",");
                 }
+                // Get the type and archetype as chars
+                archetype = (char)level_tile_grid[i, j];
+                type = (char)final_tile_grid[i, j];
+
+                // Print the string as TileArchetypeTileType
+                tile = "";
+                tile = String.Concat(tile, archetype);
+                tile = String.Concat(tile, type);
+
+                writer.Write(tile);
                 writer.Write("\n");
             }
             writer.Close();
@@ -378,6 +404,9 @@ namespace LevelGenerator
         // Treasure
         Chest = 'c',
         Gold = 'G',
+
+        // Enemy
+        Skeleton = '#',
 
         None = ' '
     }
