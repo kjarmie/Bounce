@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 namespace LevelGenerator.Phases
 {
     /// <summary>
@@ -98,7 +97,7 @@ namespace LevelGenerator.Phases
             // SAVE THE VALID TILE TYPES FOR EACH TILE ARCHETYPE
             valid_types = new Dictionary<TileArchetype, List<TileType>>();
             Array archetypes = Enum.GetValues(typeof(TileArchetype));
-            for (int x = 0; x < archetypes.Length - 1; x++) // minus 1 for the None type
+            for (int x = 0; x < archetypes.Length; x++) // minus 1 for the None type
             {
                 // Initialize the list
                 List<TileType> possibilities = new List<TileType>();
@@ -109,6 +108,7 @@ namespace LevelGenerator.Phases
                 // Add only the options which are allowed by that type
                 switch (archetype)
                 {
+                    // TODO: Make actual assets for start and end tiles
                     case TileArchetype.Air:
                     case TileArchetype.Start:
                     case TileArchetype.End:
@@ -235,9 +235,11 @@ namespace LevelGenerator.Phases
                         case TileArchetype.Air:
                         case TileArchetype.Start:
                         case TileArchetype.End:
+                            possibilities.Add(TileType.NormalAir);
                             possibilities.Add(TileType.Flowers);
                             possibilities.Add(TileType.Mushrooms);
                             possibilities.Add(TileType.Weeds);
+
                             break;
                         case TileArchetype.Ground:
                             possibilities.Add(TileType.Dirt);
@@ -281,7 +283,6 @@ namespace LevelGenerator.Phases
             Propagate(remaining, row, col, selection);
 
             // Now, perform the WFC on the rest of the grid until it is finished
-            int f = 0;
             while (true)
             {
                 // Determine which tiles are still remaining, and their entropy
@@ -290,10 +291,6 @@ namespace LevelGenerator.Phases
                 // If the found location is [-1, -1], then the processing is done
                 if (row == -1 && col == -1)
                 {
-                    // Finish processing
-                    Debug.Log("FINISHED WFC FOR PHASE 4");
-                    Debug.Log("Finished in " + f + " passes");
-
                     break;
                 }
 
@@ -327,6 +324,8 @@ namespace LevelGenerator.Phases
         private TileType GetSelection(List<TileType>[,] remaining, int row, int col)
         {
             // Select random tile, but make sure that treasure and enemy are selected with very low probability
+            TileArchetype archetype = LevelGenerator.level_tile_grid[row, col];
+
             List<TileType> options = remaining[row, col];
             int index = random.Next(0, options.Count);
             TileType selection;
@@ -336,7 +335,7 @@ namespace LevelGenerator.Phases
             {
                 // Since we have no options to pick for WFC, we simply randomly assign a value from those available based on the archetype.
                 // Get the archetype
-                TileArchetype archetype = LevelGenerator.level_tile_grid[row, col];
+                archetype = LevelGenerator.level_tile_grid[row, col];
 
                 // Get the valid possibilities
                 List<TileType> possibilities = valid_types.GetValueOrDefault(archetype);
@@ -375,45 +374,31 @@ namespace LevelGenerator.Phases
                 Direction d = directions[j];
                 //Direction d = (Direction)Enum.GetValues(typeof(Direction)).GetValue(j);
                 int next_row = row, next_col = col;
-                TileType type = GetSymbolInDirection(ref next_row, ref next_col, d, LevelGenerator.final_tile_grid);
+                TileArchetype archetype = GetArchetypeInDirection(ref next_row, ref next_col, d, LevelGenerator.level_tile_grid);
 
                 // Only if the direction is valid, continue processing
                 if (next_row != -1 && next_col != -1)
                 {
                     // First check if the remaining possibilities for the neighbour in the direction is null (meaning it is not considered)
-                    if (remaining[next_row, next_col] != null)
+                    List<TileType> possibilities = remaining[next_row, next_col];
+                    if (possibilities != null)
                     {
-                        // Get a list of all possible symbols that can appear in that direction
-                        List<TileType> valid = new List<TileType>();
-                        for (int k = 0; k < weights.GetUpperBound(2); k++)  // TODO: also runs to archetypes.Count()
+                        // For all the types in the list of the remaining possibilities
+                        int count = possibilities.Count;
+                        for (int k = count - 1; k >= count; k--)
                         {
                             // Get the symbol at position k 
-                            TileType symbol = types[k];
-                            try
-                            {
-                                if (weights[index, j, k] != 0)
-                                { // a symbol is a valid option if the weight is not zero
-                                  // Add to the list of valid symbols
-                                    valid.Add(symbol);
-                                }
-                            }
-                            catch (System.Exception)
-                            {
-                                Debug.Log(index);
-                                Debug.Log(j);
-                                Debug.Log(k);
-                            }
-                        }
-                        // For the possibilities in that direction, remove any symbols that do not appear in the valid possibilities (or just replace the list)
+                            TileType symbol = possibilities[k];
 
-                        try
-                        {
-                            remaining[next_row, next_col] = valid;
-                        }
-                        catch (System.Exception)
-                        {
-                            Debug.Log(next_row);
-                            Debug.Log(next_col);
+                            // Get the symbol index
+                            int location = types.IndexOf(symbol);
+
+                            // If the weight for this option is 0, remove it                            
+                            if (weights[index, j, location] == 0)
+                            {
+                                // Add to valid
+                                possibilities.Remove(symbol);
+                            }
                         }
                     }
                 }
@@ -437,7 +422,7 @@ namespace LevelGenerator.Phases
 
                 // Only if the direction is valid, continue processing
                 int next_row = row, next_col = col;
-                TileType neighbour = GetSymbolInDirection(ref next_row, ref next_col, direction, LevelGenerator.final_tile_grid);
+                TileArchetype archetype = GetArchetypeInDirection(ref next_row, ref next_col, direction, LevelGenerator.level_tile_grid);
                 if (next_row != -1 && next_col != -1)
                 {
                     // First check if the remaining possibilities for the neighbour in the direction is null (meaning it is not considered)
@@ -462,9 +447,10 @@ namespace LevelGenerator.Phases
                                     // Get the symbol at position k 
                                     TileType symbol = types[k];
 
-                                    if (weights[index, d, k] != 0)
-                                    { // a symbol is a valid option if the weight is not zero
-                                      // Add to the list of valid symbols
+                                    // Aa symbol is a valid option if the weight is not zero and if it matches the archetype in the direction
+                                    if (weights[index, d, k] != 0 && archetype == LevelGenerator.level_tile_grid[next_row, next_col])
+                                    {
+                                        // Add to valid
                                         valid.Add(symbol);
                                     }
                                 }
@@ -606,7 +592,7 @@ namespace LevelGenerator.Phases
                                 {
                                     // Get the symbol
                                     int next_row = row, next_col = col;
-                                    TileType symbol_in_direction = GetSymbolInDirection(ref next_row, ref next_col, d, input_grid);
+                                    TileType symbol_in_direction = GetTileTypeInDirection(ref next_row, ref next_col, d, input_grid);
 
                                     // If the symbol is valid
                                     if (symbol_in_direction != TileType.None)
@@ -614,17 +600,8 @@ namespace LevelGenerator.Phases
                                         // Get its index
                                         int index = types.IndexOf(symbol_in_direction);
 
-                                        try
-                                        {
-                                            // Increment the weight
-                                            w[(int)d, index] += 1;  // TODO: Maybe use a proportion, rather than a value
-                                        }
-                                        catch (System.Exception)
-                                        {
-                                            Debug.Log("Direction: " + d);
-                                            Debug.Log("Index: " + index);
-                                        }
-
+                                        // Increment the weight
+                                        w[(int)d, index] += 1;  // TODO: Maybe use a proportion, rather than a value
 
                                     }   // otherwise, continue to the other directions
 
@@ -672,6 +649,44 @@ namespace LevelGenerator.Phases
             writer.Close();
 
             Console.WriteLine();
+        }
+
+
+        private TileArchetype GetArchetype(TileType type)
+        {
+            switch (type)
+            {
+                // Ground
+                case TileType.Brick:
+                case TileType.Dirt:
+                case TileType.Grass:
+                case TileType.Stone:
+                    return TileArchetype.Ground;
+
+                // Air
+                case TileType.Flowers:
+                case TileType.NormalAir:
+                case TileType.Mushrooms:
+                case TileType.Weeds:
+                    return TileArchetype.Air;
+
+                // Trap
+                case TileType.BlackRose:
+                case TileType.Boulder:
+                case TileType.Spikes:
+                    return TileArchetype.Trap;
+
+                // Treasure
+                case TileType.Chest:
+                case TileType.Gold:
+                    return TileArchetype.Ground;
+                // Enemy
+                case TileType.Skeleton:
+                    return TileArchetype.Enemy;
+
+                default:
+                    return TileArchetype.None;
+            }
         }
 
         /// <summary>
@@ -747,7 +762,65 @@ namespace LevelGenerator.Phases
         /// <param name="direction">The direction.</param>
         /// <param name="grid">The grid.</param>
         /// <returns>The char at the provided in the provided direction if valid, else ' ' if invalid.</returns>
-        private TileType GetSymbolInDirection(ref int row, ref int col, Direction direction, TileType[,] grid)
+        private TileArchetype GetArchetypeInDirection(ref int row, ref int col, Direction direction, TileArchetype[,] grid)
+        {
+            // Determine the direction
+            try
+            {
+                switch (direction)
+                {
+                    case Direction.Up:
+                        row = row - 1;
+                        return grid[row - 1, col];
+                    case Direction.UpRight:
+                        row = row - 1;
+                        col = col + 1;
+                        return grid[row - 1, col + 1];
+                    case Direction.Right:
+                        col = col + 1;
+                        return grid[row, col + 1];
+                    case Direction.DownRight:
+                        row = row + 1;
+                        col = col + 1;
+                        return grid[row + 1, col + 1];
+                    case Direction.Down:
+                        row = row + 1;
+                        return grid[row + 1, col];
+                    case Direction.DownLeft:
+                        row = row + 1;
+                        col = col - 1;
+                        return grid[row + 1, col - 1];
+                    case Direction.Left:
+                        col = col - 1;
+                        return grid[row, col - 1];
+                    case Direction.UpLeft:
+                        row = row - 1;
+                        col = col - 1;
+                        return grid[row - 1, col - 1];
+                    default:
+                        row = -1;
+                        row = -1;
+                        return TileArchetype.None;
+                }
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                // If an invalid location is accessed, an out of range exception is caught, and a None returned
+                row = -1;
+                row = -1;
+                return TileArchetype.None;
+            }
+        }
+
+        /// <summary>
+        /// Finds the char in the provided direction in the provided grid at the provided row,col index
+        /// </summary>
+        /// <param name="row">The row index.</param>
+        /// <param name="col">The column index.</param>
+        /// <param name="direction">The direction.</param>
+        /// <param name="grid">The grid.</param>
+        /// <returns>The char at the provided in the provided direction if valid, else ' ' if invalid.</returns>
+        private TileType GetTileTypeInDirection(ref int row, ref int col, Direction direction, TileType[,] grid)
         {
             // Determine the direction
             try
@@ -796,6 +869,7 @@ namespace LevelGenerator.Phases
                 return TileType.None;
             }
         }
+
 
         private List<TileType[,]> GetTrainingData()
         {

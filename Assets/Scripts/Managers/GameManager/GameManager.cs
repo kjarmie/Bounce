@@ -20,18 +20,20 @@ namespace Bounce
         [SerializeField] private PlayerController player_avatar;
         [SerializeField] private Camera game_camera;
 
-
         // UI Variables
         [SerializeField] GameObject pause_panel;
         [SerializeField] GameObject pause_button;
         public static bool isPaused;
         public static Vector3 startLocation;
 
-
         // Terrain Variables
         [SerializeField] private GameObject terrain;
         [SerializeField] private int view_width, view_height;
         private TileView[,] tileview_grid;
+
+        // Level Generation Variables
+        int seed;
+        public static LevelSize level_size;
 
         public void OnPauseClicked()
         {
@@ -63,7 +65,7 @@ namespace Bounce
 
         public void OnExitClicked()
         {   // exit to the main menu
-            int mainMenu = (int)MainMenuController.Scenes.MainMenu;
+            int mainMenu = (int)Scenes.MainMenu;
 
             SceneManager.LoadScene(mainMenu);
         }
@@ -101,7 +103,7 @@ namespace Bounce
                     HandleLevelGeneration();
                     break;
                 case GameState.CreateGameView:
-                    //HandleGameViewCreation();     // TODO: Fix
+                    HandleGameViewCreation();
                     break;
                 case GameState.SpawnPlayer:
                     // HandleSpawningPlayer();      // TODO: Fix
@@ -120,7 +122,10 @@ namespace Bounce
 
         private void HandlePreInit()
         {
-            // Do some start setup, could be environment, cinematics etc
+            // Here, we obtain the level creation variables from the previous menu screen
+            
+
+
 
             // Update the game state to generate the level
             ChangeState(GameState.GenerateLevel);
@@ -132,8 +137,9 @@ namespace Bounce
         private void HandleLevelGeneration()
         {
             // Perform the level generation
-            int seed = new System.Random().Next();
-            LevelGenerator.LevelGenerator.GenerateLevel(seed, LevelSize.Small);
+            seed = new System.Random().Next();
+            seed = 1;
+            LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size);
 
             // Once the level is generated, move to create the game view and update game state
             ChangeState(GameState.CreateGameView);
@@ -144,6 +150,9 @@ namespace Bounce
         // </summary>
         private void HandleGameViewCreation()
         {
+            // Create the GameLevel manager
+            GameLevel.CreateGameLevelFromFile(@"C:\Users\quzei\Documents\Development\Unity\Bounce\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\level.txt");
+
             // Initialize the TileView grid
             tileview_grid = new TileView[GameLevel.rows, GameLevel.cols];
 
@@ -171,7 +180,7 @@ namespace Bounce
             }
 
             // Fix the camera 
-            GetComponent<Camera>().transform.position = new Vector3((float)view_width / 2 - 0.5f, (float)view_height / 2 - 0.5f, -200);
+            //GetComponent<Camera>().transform.position = new Vector3((float)view_width / 2 - 0.5f, (float)view_height / 2 - 0.5f, -200);
 
             // Ensure the level is bordered
             //TODO: add some of the dummy tiles around the entire level

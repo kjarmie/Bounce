@@ -2064,7 +2064,7 @@ GameObject:
   - component: {fileID: 1246104067}
   - component: {fileID: 1246104068}
   m_Layer: 0
-  m_Name: Game Manager
+  m_Name: Scene Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2098,14 +2098,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileViewPrefab: {fileID: 5677660106993414483, guid: 6f743bffb6337494280782e7a7a787c6, type: 3}
-  terrain: {fileID: 800132323}
   player_avatar: {fileID: 1556392019}
-  game_camera: {fileID: 0}
-  view_width: 1920
-  view_height: 1080
-  seed: 17
+  game_camera: {fileID: 963194227}
   pause_panel: {fileID: 1245290705}
   pause_button: {fileID: 1577466781}
+  terrain: {fileID: 800132323}
+  view_width: 1920
+  view_height: 1080
 --- !u!1 &1252958428
 GameObject:
   m_ObjectHideFlags: 0

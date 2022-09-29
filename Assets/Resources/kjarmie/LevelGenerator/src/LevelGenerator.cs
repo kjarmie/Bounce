@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using LevelGenerator.Phases;
 using System.IO;
+using UnityEngine;
 
 namespace LevelGenerator
 {
@@ -25,7 +26,7 @@ namespace LevelGenerator
 
         // Random generation
         public static int seed;                             // the random seed used for the entire generation process
-        public static Random random;                        // the random number generator which is used every time a random number is needed
+        public static System.Random random;                        // the random number generator which is used every time a random number is needed
 
         // Game Level
         public static TileArchetype[,] level_tile_grid;     // a collection of all the tile (archetypes) in the level
@@ -62,20 +63,26 @@ namespace LevelGenerator
 
             // Phase 1: Generate Paths
             p1GenPaths.Run();
+            Debug.Log("Phase 1 Complete");
 
             // Phase 2: Generate Sections
             p2GenSections.Run();
+            Debug.Log("Phase 2 Complete");
 
             // Phase 3: Place Special Tiles
             p3PlaceSpecialTiles.TrainWFC();
             p3PlaceSpecialTiles.Run();
+            Debug.Log("Phase 3 Complete");
 
             // Phase 4: Set Level Style
             p4SetLevelStyle.TrainWFC();
             p4SetLevelStyle.Run();
+            Debug.Log("Phase 4 Complete");
 
             // Finally, we produce the output that can be used by other programs
             PrintFinalGrid("level.txt");
+
+            Debug.Log("LEVEL GENERATION COMPLETE");
         }
 
         /// <summary>
@@ -95,7 +102,7 @@ namespace LevelGenerator
         {
             // CREATE THE RANDOM
             LevelGenerator.seed = seed;
-            LevelGenerator.random = new Random(seed);
+            LevelGenerator.random = new System.Random(seed);
 
             // SET THE LEVEL SIZE
             switch (level_size)
@@ -117,11 +124,16 @@ namespace LevelGenerator
                     SetDimensions(32, 40, 16, 8, 10, 4, 4);
                     break;
                 case LevelSize.Medium:  // Medium   - this size is nxm tiles with pxr sections of size 8x10
+                    SetDimensions(64, 80, 64, 8, 10, 8, 8);
                     break;
                 case LevelSize.Large:   // Large    - this size is nxm tiles with pxr sections of size 8x10
+                    SetDimensions(96, 120, 144, 8, 10, 12, 12);
                     break;
                 case LevelSize.Huge:    // HUGE Spelunky - this custom size is 32x40 tiles with 4x4 sections of size 8x10
-                    SetDimensions(64, 80, 64, 8, 10, 8, 8);
+                    //SetDimensions(64, 80, 64, 8, 10, 8, 8);
+                    break;
+                case LevelSize.Test:   // Test - for testing various features
+                    //SetDimensions(25, 4, 16, 8, 10, 4, 4);
                     break;
             }
 
@@ -285,7 +297,17 @@ namespace LevelGenerator
             int row = section_id / vert_sections;   // the row is the id / vert_sections
             int col = section_id % vert_sections;   // the row is the id % vert_sections
 
-            level_section_grid[row, col] = section_type;
+            try
+            {
+                level_section_grid[row, col] = section_type;
+            }
+            catch (System.Exception)
+            {
+                UnityEngine.Debug.Log("Row: " + row);
+                UnityEngine.Debug.Log("Row: " + row);
+            }
+
+
         }
 
         /// <summary>
@@ -307,15 +329,17 @@ namespace LevelGenerator
 
             StreamWriter writer = new StreamWriter(new_file);
 
-            for (int i = 0; i < rows_in_level; i++)
-            {
-                int j;
-                String tile;
-                char archetype;
-                char type;
 
-                TileArchetype _archetype;
-                TileType _type;
+            int i = 0;
+            int j = 0;
+            String tile;
+            char archetype;
+            char type;
+
+            TileArchetype _archetype;
+            TileType _type;
+            for (i = 0; i < rows_in_level - 1; i++)
+            {
                 for (j = 0; j < cols_in_level - 1; j++)
                 {
                     // Get the type and archetype as chars
@@ -329,7 +353,10 @@ namespace LevelGenerator
                     tile = String.Concat(tile, archetype);
                     tile = String.Concat(tile, type);
 
-                    writer.Write(tile + ",");
+                    if (j != cols_in_level - 1)
+                        writer.Write(tile + ",");
+                    else
+                        writer.Write(tile);
                 }
                 // Get the type and archetype as chars
                 archetype = (char)level_tile_grid[i, j];
@@ -341,6 +368,7 @@ namespace LevelGenerator
                 tile = String.Concat(tile, type);
 
                 writer.Write(tile);
+
                 writer.Write("\n");
             }
             writer.Close();
@@ -420,6 +448,7 @@ namespace LevelGenerator
         Medium = 'm',
         Large = 'l',
         Huge = 'h',
+        Test = 't',
         None = ' '   // used as the 'null' type for this enum
     }
 

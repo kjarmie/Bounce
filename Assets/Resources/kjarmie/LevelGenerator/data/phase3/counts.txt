@@ -1,8 +1,8 @@
-3
-0
-747
-610
-9
-2
-0
-0
+Enemy,3
+Wildcard,0
+Air,747
+Ground,610
+Trap,9
+Treasure,2
+Start,0
+End,0

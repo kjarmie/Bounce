@@ -240,7 +240,7 @@ namespace LevelGenerator.Phases
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Drop);
                             }
                             // next_section_id.SetSectionType(Section.SectionType.Landing);
-                            LevelGenerator.SetSectionType(next_section_id, SectionType.JumpLanding);
+                            LevelGenerator.SetSectionType(next_section_id, SectionType.Landing);
                             // TODO: Make sure to add the appropriate entrances and exits based on the directions
                         }
                     }
