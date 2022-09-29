@@ -168,6 +168,12 @@ namespace LevelGenerator.Phases
                 // Get the selection
                 selection = GetSelection(remaining, row, col);
 
+                // If selection is None, there is an error, so we return
+                if (selection == TileArchetype.None)
+                {
+                    return;
+                }
+
                 // Make the selection
                 LevelGenerator.level_tile_grid[row, col] = selection;
 
@@ -203,6 +209,7 @@ namespace LevelGenerator.Phases
 
             List<double> frequency = new List<double>();
             double cum_frequency = 0;
+            TileArchetype selection = TileArchetype.None;
             for (int i = 0; i < options.Count; i++)
             {
                 // Get the archetype
@@ -212,7 +219,7 @@ namespace LevelGenerator.Phases
                 int count = symbol_count[archetype];
 
                 // Get the proportion
-                double prop = count / total_tiles;
+                double prop = ((double)count) / ((double) total_tiles);
 
                 // Increase cum_frequency
                 cum_frequency += prop;
@@ -224,7 +231,7 @@ namespace LevelGenerator.Phases
             // Run until a value is found
             bool still_processing = true;
             int TEST = 0;
-            while (still_processing || TEST > 100)
+            while (still_processing && TEST < 100)
             {
                 // Now, get a random probability
                 double probability = random.NextDouble();
@@ -239,7 +246,7 @@ namespace LevelGenerator.Phases
                     if (freq >= probability)
                     {
                         // Get the archetype from the list of remaining
-                        TileArchetype archetype = options[i];
+                        selection = options[i];
 
                         // Break
                         still_processing = false;
@@ -254,50 +261,51 @@ namespace LevelGenerator.Phases
 
 
             // TODO:
+            
 
-            // Make the selection
-            TileArchetype selection = options[index];
+            // // Make the selection
+            // TileArchetype selection = options[index];
 
-            // Check the proportion of enemy, trap and treasure tiles
-            if (selection == TileArchetype.Enemy)
-            {
-                if (placed_enemy_tiles <= max_enemy_tiles && random.NextDouble() <= enemy_prop)
-                {
-                    selection = TileArchetype.Enemy;
-                    placed_enemy_tiles++;
-                }
-                else
-                {
-                    // Reset the selection to be air
-                    selection = TileArchetype.Air;
-                }
-            }
-            else if (selection == TileArchetype.Treasure)
-            {
-                if (placed_treasure_tiles <= max_treasure_tiles && random.NextDouble() <= treasure_prop)
-                {
-                    selection = TileArchetype.Treasure;
-                    placed_treasure_tiles++;
-                }
-                else
-                {
-                    // Reset the selection to be air
-                    selection = TileArchetype.Air;
-                }
-            }
-            else if (selection == TileArchetype.Trap)
-            {
-                if (placed_trap_tiles <= max_trap_tiles && random.NextDouble() <= treasure_prop)
-                {
-                    selection = TileArchetype.Treasure;
-                    placed_trap_tiles++;
-                }
-                else
-                {
-                    // Reset the selection to be air
-                    selection = TileArchetype.Air;
-                }
-            }
+            // // Check the proportion of enemy, trap and treasure tiles
+            // if (selection == TileArchetype.Enemy)
+            // {
+            //     if (placed_enemy_tiles <= max_enemy_tiles && random.NextDouble() <= enemy_prop)
+            //     {
+            //         selection = TileArchetype.Enemy;
+            //         placed_enemy_tiles++;
+            //     }
+            //     else
+            //     {
+            //         // Reset the selection to be air
+            //         selection = TileArchetype.Air;
+            //     }
+            // }
+            // else if (selection == TileArchetype.Treasure)
+            // {
+            //     if (placed_treasure_tiles <= max_treasure_tiles && random.NextDouble() <= treasure_prop)
+            //     {
+            //         selection = TileArchetype.Treasure;
+            //         placed_treasure_tiles++;
+            //     }
+            //     else
+            //     {
+            //         // Reset the selection to be air
+            //         selection = TileArchetype.Air;
+            //     }
+            // }
+            // else if (selection == TileArchetype.Trap)
+            // {
+            //     if (placed_trap_tiles <= max_trap_tiles && random.NextDouble() <= treasure_prop)
+            //     {
+            //         selection = TileArchetype.Treasure;
+            //         placed_trap_tiles++;
+            //     }
+            //     else
+            //     {
+            //         // Reset the selection to be air
+            //         selection = TileArchetype.Air;
+            //     }
+            // }
             return selection;
         }
 

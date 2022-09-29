@@ -106,7 +106,7 @@ namespace Bounce
                     HandleGameViewCreation();
                     break;
                 case GameState.SpawnPlayer:
-                    // HandleSpawningPlayer();      // TODO: Fix
+                    HandleSpawningPlayer();
                     break;
                 case GameState.Playing:
                     HandlePlaying();
@@ -151,7 +151,7 @@ namespace Bounce
         private void HandleGameViewCreation()
         {
             // Create the GameLevel manager
-            GameLevel.CreateGameLevelFromFile(@"C:\Users\quzei\Documents\Development\Unity\Bounce\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\level.txt");
+            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\level.txt");
 
             // Initialize the TileView grid
             tileview_grid = new TileView[GameLevel.rows, GameLevel.cols];

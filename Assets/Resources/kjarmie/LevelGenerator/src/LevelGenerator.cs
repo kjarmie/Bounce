@@ -124,10 +124,10 @@ namespace LevelGenerator
                     SetDimensions(32, 40, 16, 8, 10, 4, 4);
                     break;
                 case LevelSize.Medium:  // Medium   - this size is nxm tiles with pxr sections of size 8x10
-                    SetDimensions(64, 80, 64, 8, 10, 8, 8);
+                    SetDimensions(48, 60, 36, 8, 10, 6, 6);
                     break;
                 case LevelSize.Large:   // Large    - this size is nxm tiles with pxr sections of size 8x10
-                    SetDimensions(96, 120, 144, 8, 10, 12, 12);
+                    SetDimensions(64, 80, 64, 8, 10, 8, 8);
                     break;
                 case LevelSize.Huge:    // HUGE Spelunky - this custom size is 32x40 tiles with 4x4 sections of size 8x10
                     //SetDimensions(64, 80, 64, 8, 10, 8, 8);
@@ -374,6 +374,48 @@ namespace LevelGenerator
             writer.Close();
         }
 
+        /// <summary>
+        /// Returns the Tile Archetype associated with the specified Tile Type.
+        /// </summary>
+        /// <param name="type">The specified type.</param>
+        /// <returns>The associated archetype.</returns>
+        private static TileArchetype GetArchetype(TileType type)
+        {
+            switch (type)
+            {
+                // Ground
+                case TileType.Brick:
+                case TileType.Dirt:
+                case TileType.Grass:
+                case TileType.Stone:
+                    return TileArchetype.Ground;
+
+                // Air
+                case TileType.Flowers:
+                case TileType.NormalAir:
+                case TileType.Mushrooms:
+                case TileType.Weeds:
+                    return TileArchetype.Air;
+
+                // Trap
+                case TileType.BlackRose:
+                case TileType.Boulder:
+                case TileType.Spikes:
+                    return TileArchetype.Trap;
+
+                // Treasure
+                case TileType.Chest:
+                case TileType.Gold:
+                    return TileArchetype.Ground;
+                // Enemy
+                case TileType.Skeleton:
+                    return TileArchetype.Enemy;
+
+                default:
+                    return TileArchetype.None;
+            }
+        }
+
     }
 
     /// <summary>
@@ -435,6 +477,12 @@ namespace LevelGenerator
 
         // Enemy
         Skeleton = '#',
+
+        // Start
+        House = '~',
+
+        // End
+        Flag = '<',
 
         None = ' '
     }

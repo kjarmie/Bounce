@@ -39,11 +39,6 @@ namespace Bounce
 
                 LevelGenerator.Tiles.Tile tile = new LevelGenerator.Tiles.Tile(LevelGenerator.TileArchetype.None, LevelGenerator.TileType.None, 0, 1);
             }
-
-
-
-            //p3.Run();
-
         }
 
         public void OnQuitClicked()

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
+
 namespace LevelGenerator.Phases
 {
     /// <summary>
@@ -8,13 +10,17 @@ namespace LevelGenerator.Phases
     /// </summary>
     class P4SetLevelStyle : Phase
     {
+        // For testing
+        int num_zero_possibilities = 0;
+
         // Random generation
         protected int seed;                 // the random seed used for the entire generation process
         protected System.Random random;     // the random number generator which is used every time a random number is needed
 
         // For WFC
         int[,,] weights;                    // holds the weights for the neighbouring tiles for WFC where i-> symbol, j-> direction, k-> neighbouring symbol
-        List<int> symbol_count;
+        Dictionary<TileType, int> symbol_count;
+        int total_tiles = 0;                
         List<TileType> types;               // holds each unique symbol
         List<Direction> directions;         // holds all the directions
         Dictionary<TileArchetype, List<TileType>> valid_types; // holds a list of the valid types for each archetype
@@ -161,6 +167,10 @@ namespace LevelGenerator.Phases
 
             // SAVE THE FILE AS THE FINAL OUTPUT
             PrintFinalGrid("final_grid.txt");
+
+
+            //TODO: REMOVE TESTING
+            Debug.Log("Number of times there were zero remaining options: " + num_zero_possibilities);
         }
 
         private bool DoWFC()
@@ -180,10 +190,10 @@ namespace LevelGenerator.Phases
             weights = GetWeights(out symbol_count);
 
             // Get the total count
-            int total_tiles = 0;
+            total_tiles = 0;
             for (int i = 0; i < symbol_count.Count; i++)
             {
-                total_tiles += symbol_count[i];
+                total_tiles += symbol_count[types[i]];
             }
 
             // Create the final grid
@@ -328,11 +338,69 @@ namespace LevelGenerator.Phases
 
             List<TileType> options = remaining[row, col];
             int index = random.Next(0, options.Count);
-            TileType selection;
+            TileType selection = TileType.None;
+
+            // To get a symbol, we check the proportion of times that symbol appears, and then base our value on that. 
+
+            // We process all the remaining options. For each one, we add its cumulative probability to a list. 
+            // Then process that list, at each step checking if the proportion is greater than a random probability
+            // Thus, values that appear often will be selected more often than those who appear less frequently, rather than purely random
+
+            List<double> frequency = new List<double>();
+            double cum_frequency = 0;
+            for (int i = 0; i < options.Count; i++)
+            {
+                // Get the archetype
+                TileType type = options[i];
+
+                // Get the count
+                int count = symbol_count[type];
+
+                // Get the proportion
+                double prop = ((double)count) / ((double)total_tiles);
+
+                // Increase cum_frequency
+                cum_frequency += prop;
+
+                // Add it to the frequency list
+                frequency.Add(cum_frequency);
+            }
+
+            // Run until a value is found
+            bool still_processing = true;
+            int TEST = 0;
+            while (still_processing && TEST < 100)
+            {
+                // Now, get a random probability
+                double probability = random.NextDouble();
+
+                // Process then entire list
+                for (int i = 0; i < frequency.Count; i++)
+                {
+                    // Get the frequency
+                    double freq = frequency[i];
+
+                    // Check if the frequency is greater than the probability, return that option
+                    if (freq >= probability)
+                    {
+                        // Get the archetype from the list of remaining
+                        selection = options[i];
+
+                        // Break
+                        still_processing = false;
+                        break;
+
+                        //TODO: Maybe return here since we don't need to check the enemy, trap, and treasure tiles specifically
+                    }
+                }
+                TEST++;
+            }
 
             // If options.Count is 0, we have run into and error, so we return None
             if (options.Count == 0)
             {
+                num_zero_possibilities++;
+
                 // Since we have no options to pick for WFC, we simply randomly assign a value from those available based on the archetype.
                 // Get the archetype
                 archetype = LevelGenerator.level_tile_grid[row, col];
@@ -352,7 +420,7 @@ namespace LevelGenerator.Phases
             else
             {
                 // Return
-                selection = options[index];
+                //selection = options[index];
                 return selection;
             }
         }
@@ -540,12 +608,12 @@ namespace LevelGenerator.Phases
 
             // GET TRAINING DATA
             List<TileType[,]> training_data = GetTrainingData();    // will hold all the unique symbols
-            List<int> symbol_count = new List<int>();           // will hold the number of times each unique symbol appears
+            Dictionary<TileType, int> symbol_count = new Dictionary<TileType, int>();           // will hold the number of times each unique symbol appears
             List<int[,]> weights = new List<int[,]>();          // This list holds, for each symbol, the weights for all symbols and all directions
 
             for (int i = 0; i < types.Count; i++)
             {
-                symbol_count.Add(0);
+                symbol_count.Add(types[i], 0);
             }
 
             foreach (TileType[,] input_grid in training_data)
@@ -585,7 +653,7 @@ namespace LevelGenerator.Phases
                             if (cur_symbol == cur_type)
                             {
                                 // Increment the count for this symbol
-                                symbol_count[y] += 1;
+                                symbol_count[cur_symbol] += 1;
 
                                 // Process all directions
                                 foreach (Direction d in directions)
@@ -641,59 +709,25 @@ namespace LevelGenerator.Phases
             Directory.CreateDirectory(new_directory);
             writer = new StreamWriter(new_directory + @"\counts.txt");
             int k;
+            string str;
             for (k = 0; k < symbol_count.Count - 1; k++)
             {
-                writer.Write(symbol_count[k] + "\n");
+                // Write the archetype + , + the count
+                str = types[k] + "," + symbol_count[types[k]];
+                writer.Write(str + "\n");
             }
-            writer.Write(symbol_count[k]);
+            str = types[k] + "," + symbol_count[types[k]];
+            writer.Write(str);
             writer.Close();
 
             Console.WriteLine();
-        }
-
-
-        private TileArchetype GetArchetype(TileType type)
-        {
-            switch (type)
-            {
-                // Ground
-                case TileType.Brick:
-                case TileType.Dirt:
-                case TileType.Grass:
-                case TileType.Stone:
-                    return TileArchetype.Ground;
-
-                // Air
-                case TileType.Flowers:
-                case TileType.NormalAir:
-                case TileType.Mushrooms:
-                case TileType.Weeds:
-                    return TileArchetype.Air;
-
-                // Trap
-                case TileType.BlackRose:
-                case TileType.Boulder:
-                case TileType.Spikes:
-                    return TileArchetype.Trap;
-
-                // Treasure
-                case TileType.Chest:
-                case TileType.Gold:
-                    return TileArchetype.Ground;
-                // Enemy
-                case TileType.Skeleton:
-                    return TileArchetype.Enemy;
-
-                default:
-                    return TileArchetype.None;
-            }
         }
 
         /// <summary>
         /// Loads the weights for the WFC algorithm that were created in the training of the algorithm.
         /// </summary>
         /// <returns>A 3D array ([i,j,k]) of integers, where i = symbol, j = direction, k = neighbouring symbol.</returns>
-        private int[,,] GetWeights(out List<int> symbol_count)
+        private int[,,] GetWeights(out Dictionary<TileType, int> symbol_count)
         {
             // Get the 3D array
             int[,,] weights;
@@ -741,13 +775,21 @@ namespace LevelGenerator.Phases
             }
 
             // Load the counts for the symbols
-            symbol_count = new List<int>();
+            symbol_count = new Dictionary<TileType, int>();
             new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4";
             reader = new StreamReader(new_directory + @"\counts.txt");
 
             while (!reader.EndOfStream)
             {
-                symbol_count.Add(int.Parse(reader.ReadLine()));
+                // Read a line and split into array
+                string[] input = reader.ReadLine().Split(",");
+
+                // The first val will be the archetype, the second the count
+                TileType type = (TileType)Enum.Parse(typeof(TileType), input[0]);
+                int count = int.Parse(input[1]);
+
+                // Add the the symbol_count
+                symbol_count.Add(type, count);
             }
             reader.Close();
 

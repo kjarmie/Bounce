@@ -34,7 +34,8 @@ namespace Bounce
             string file_path = "";
             Texture2D new_texture = new Texture2D(0, 0);
 
-            if(tile == null) {
+            if (tile == null)
+            {
                 Debug.Log("");
             }
 
@@ -112,6 +113,17 @@ namespace Bounce
                     gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 1);
                     break;
 
+                // Start and End tiles
+                case TileType.House:
+                    directory = "kjarmie/Art/Tiles/Air/";
+                    file_path = directory + "normal_air";
+                    this.gameObject.GetComponent<Collider2D>().enabled = false;
+                    break;
+                case TileType.Flag:
+                    directory = "kjarmie/Art/Tiles/Air/";
+                    file_path = directory + "normal_air";
+                    this.gameObject.GetComponent<Collider2D>().enabled = false;
+                    break;
             }
 
             // Set the details
