@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using LevelGenerator.Tiles;
 using LevelGenerator;
+using UnityEngine;
 
 
 namespace Bounce
@@ -20,8 +21,6 @@ namespace Bounce
 
         // Player Information
 
-
-        // 
 
 
 
@@ -86,6 +85,18 @@ namespace Bounce
 
                         // Get the type
                         TileType type = (TileType)_type;
+
+                        // Check if the tile is an enemy
+                        if (archetype == TileArchetype.Enemy)
+                        {
+                            // TODO: Do enemy spawning
+                            GameManager.SpawnSkeleton(i, j);
+
+                            // The created tile should be a normal air tile so we override the type and archetype
+                            archetype = TileArchetype.Air;
+                            type = TileType.NormalAir;
+
+                        }
 
                         // Create a new tile
                         Tile tile = new Tile(archetype, type, i, j);

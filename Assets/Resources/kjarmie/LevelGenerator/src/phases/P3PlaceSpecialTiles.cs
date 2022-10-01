@@ -811,7 +811,8 @@ namespace LevelGenerator.Phases
         {
             // Create new directory
             //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P3\" + seed + @"\";
+            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P3\" + seed + @"\";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P3\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;

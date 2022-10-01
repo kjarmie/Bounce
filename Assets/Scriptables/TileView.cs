@@ -105,7 +105,7 @@ namespace Bounce
                     file_path = directory + "gold";
                     break;
 
-                // Enemy tiles
+                // Enemy tiles - these are set to normal air since the game will handle the creation of the enemy AI's
                 case TileType.Skeleton:
                     directory = "kjarmie/Art/Tiles/Air/";
                     file_path = directory + "normal_air";
@@ -115,14 +115,20 @@ namespace Bounce
 
                 // Start and End tiles
                 case TileType.House:
-                    directory = "kjarmie/Art/Tiles/Air/";
-                    file_path = directory + "normal_air";
+                    directory = "kjarmie/Art/Tiles/Start/";
+                    file_path = directory + "house";
                     this.gameObject.GetComponent<Collider2D>().enabled = false;
                     break;
                 case TileType.Flag:
-                    directory = "kjarmie/Art/Tiles/Air/";
-                    file_path = directory + "normal_air";
+                    directory = "kjarmie/Art/Tiles/End/";
+                    file_path = directory + "flag";
                     this.gameObject.GetComponent<Collider2D>().enabled = false;
+                    break;
+
+                // If a None tile is given, it is a border tile, so we give it the default image, which is stone.
+                case TileType.None:
+                    directory = "kjarmie/Art/Tiles/Ground/";
+                    file_path = directory + "stone";
                     break;
             }
 

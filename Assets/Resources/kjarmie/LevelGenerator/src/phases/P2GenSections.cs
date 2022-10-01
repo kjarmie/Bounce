@@ -145,7 +145,8 @@ namespace LevelGenerator.Phases
         {
             // Create new directory
             //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\" + seed + @"\";
+            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\" + seed + @"\";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;
@@ -172,7 +173,8 @@ namespace LevelGenerator.Phases
         {
             // Create new directory
             //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\" + seed + @"\sections\";
+            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\" + seed + @"\sections\";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\sections\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + "section_" + section_id + "_tile_grid.txt";

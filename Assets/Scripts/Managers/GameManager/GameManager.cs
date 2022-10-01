@@ -28,12 +28,17 @@ namespace Bounce
 
         // Terrain Variables
         [SerializeField] private GameObject terrain;
+        [SerializeField] private GameObject blockers;
         [SerializeField] private int view_width, view_height;
         private TileView[,] tileview_grid;
 
         // Level Generation Variables
         int seed;
         public static LevelSize level_size;
+
+        // Enemy AI Variables
+        [SerializeField] public static GameObject Enemies;
+        [SerializeField] public static Skeleton skeleton;
 
         public void OnPauseClicked()
         {
@@ -123,7 +128,7 @@ namespace Bounce
         private void HandlePreInit()
         {
             // Here, we obtain the level creation variables from the previous menu screen
-            
+
 
 
 
@@ -138,7 +143,7 @@ namespace Bounce
         {
             // Perform the level generation
             seed = new System.Random().Next();
-            seed = 1;
+            //seed = 1;
             LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size);
 
             // Once the level is generated, move to create the game view and update game state
@@ -151,7 +156,23 @@ namespace Bounce
         private void HandleGameViewCreation()
         {
             // Create the GameLevel manager
-            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\level.txt");
+            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
+
+            // Create some dummy tiles that frame the level
+            for (int x = -10; x < GameLevel.cols + 10; x++)
+            {
+                for (int y = -10; y < GameLevel.rows + 10; y++)
+                {
+                    // Only place blockers at positions if they are not in the bounds of the level
+                    if (!(x > 0 && x < GameLevel.cols && y > 0 && y < GameLevel.rows))
+                    {
+                        TileView tile_view = Instantiate(tileViewPrefab, new Vector3(x, -y), Quaternion.identity);
+                        tile_view.Init(new Tile(TileArchetype.None, TileType.None, -1, -1));
+                        tile_view.name = String.Format("Blocker");
+                        tile_view.transform.parent = blockers.transform;
+                    }
+                }
+            }
 
             // Initialize the TileView grid
             tileview_grid = new TileView[GameLevel.rows, GameLevel.cols];
@@ -209,6 +230,12 @@ namespace Bounce
         private void HandlePlaying()
         {
 
+        }
+
+        public static void SpawnSkeleton(int row, int col)
+        {
+            Skeleton new_skeleton = Instantiate(skeleton, new Vector3(col, -row), Quaternion.identity);
+            new_skeleton.transform.parent = GameManager.Enemies.transform;
         }
 
     }
