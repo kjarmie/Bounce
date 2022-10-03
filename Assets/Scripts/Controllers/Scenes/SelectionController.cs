@@ -30,7 +30,7 @@ namespace Bounce
 
         public void OnBackClicked()
         {
-            Application.Quit();
+            SceneManager.LoadScene((int)Scenes.MainMenu);
         }
 
     }

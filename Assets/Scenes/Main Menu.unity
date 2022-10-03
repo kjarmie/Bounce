@@ -422,7 +422,7 @@ GameObject:
   - component: {fileID: 635198580}
   - component: {fileID: 635198579}
   m_Layer: 5
-  m_Name: BtnTraining
+  m_Name: BtnVisualization
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -494,8 +494,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1422251778}
-        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
-        m_MethodName: OnTrainingClicked
+        m_TargetAssemblyTypeName: Bounce.MainMenuController, Assembly-CSharp
+        m_MethodName: OnVisualizeClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -525,7 +525,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4867939462919490772, guid: 3316aabd5dd7e2743ad1214e35350560, type: 3}
+  m_Sprite: {fileID: -6226665981680759704, guid: 3316aabd5dd7e2743ad1214e35350560, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1767,7 +1767,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Training
+  m_text: Visualize
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 908d80d9612642448a515d3910454dc5, type: 2}
   m_sharedMaterial: {fileID: 1448635381181724866, guid: 908d80d9612642448a515d3910454dc5, type: 2}

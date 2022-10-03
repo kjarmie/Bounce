@@ -20,7 +20,7 @@ namespace LevelGenerator.Phases
         // For WFC
         int[,,] weights;                    // holds the weights for the neighbouring tiles for WFC where i-> symbol, j-> direction, k-> neighbouring symbol
         Dictionary<TileType, int> symbol_count;
-        int total_tiles = 0;                
+        int total_tiles = 0;
         List<TileType> types;               // holds each unique symbol
         List<Direction> directions;         // holds all the directions
         Dictionary<TileArchetype, List<TileType>> valid_types; // holds a list of the valid types for each archetype
@@ -283,6 +283,12 @@ namespace LevelGenerator.Phases
 
             // BEGIN THE WFC ALGORITHM
 
+            // TODO: This is the code for having structs for each archetype that define the possible archetypes that occur in each direction
+
+            // Here, the entire input is scanned and determines, for each archetype, the allowed archetypes in each direction
+
+            // TODO
+
             // Select a random tile to process
             int row = random.Next(0, LevelGenerator.rows_in_level);
             int col = random.Next(0, LevelGenerator.cols_in_level);
@@ -370,10 +376,33 @@ namespace LevelGenerator.Phases
                 frequency.Add(cum_frequency);
             }
 
+            // If options.Count is 0, we have run into and error, so we return None
+            if (options.Count == 0)
+            {
+                num_zero_possibilities++;
+
+                // Since we have no options to pick for WFC, we simply randomly assign a value from those available based on the archetype.
+                // Get the archetype
+                archetype = LevelGenerator.level_tile_grid[row, col];
+
+                // Get the valid possibilities
+                List<TileType> possibilities = valid_types.GetValueOrDefault(archetype);
+
+                // Select a random type
+                index = random.Next(0, possibilities.Count);
+
+                // Make the selection
+                selection = possibilities[index];
+
+                // Return
+                return selection;
+            }
+
             // Run until a value is found
             bool still_processing = true;
             int TEST = 0;
-            while (still_processing && TEST < 100)
+            // while (still_processing && TEST < 100)
+            while (still_processing)
             {
                 // Now, get a random probability
                 double probability = random.NextDouble();
@@ -400,33 +429,7 @@ namespace LevelGenerator.Phases
                 TEST++;
             }
 
-            // If options.Count is 0, we have run into and error, so we return None
-            if (options.Count == 0)
-            {
-                num_zero_possibilities++;
-
-                // Since we have no options to pick for WFC, we simply randomly assign a value from those available based on the archetype.
-                // Get the archetype
-                archetype = LevelGenerator.level_tile_grid[row, col];
-
-                // Get the valid possibilities
-                List<TileType> possibilities = valid_types.GetValueOrDefault(archetype);
-
-                // Select a random type
-                index = random.Next(0, possibilities.Count);
-
-                // Make the selection
-                selection = possibilities[index];
-
-                // Return
-                return selection;
-            }
-            else
-            {
-                // Return
-                //selection = options[index];
-                return selection;
-            }
+            return selection;
         }
 
         private void Propagate(List<TileType>[,] remaining, int row, int col, TileType selection)
@@ -1043,4 +1046,49 @@ namespace LevelGenerator.Phases
             writer.Close();
         }
     }
+
+    /// <summary>
+    /// Defines the adjacency rules for an archetype
+    /// </summary>
+    struct ArchetypeAdjacency
+    {
+        TileArchetype archetype;    // the archetype 
+        Dictionary<Direction, List<KeyValuePair<TileArchetype, int>>> adjacencies;   // the adjacent tiles 
+
+        public ArchetypeAdjacency(TileArchetype archetype)
+        {
+            // Assign the archetype and create the adjacency dictionary
+            this.archetype = archetype;
+
+            adjacencies = new Dictionary<Direction, List<KeyValuePair<TileArchetype, int>>>();
+            foreach (Direction d in Enum.GetValues(typeof(Direction)))
+            {
+                if (d != Direction.None)
+                    adjacencies.Add(d, new List<KeyValuePair<TileArchetype, int>>());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Defines the adjacency rules for an type
+    /// </summary>
+    struct TypeAdjacency
+    {
+        TileType type;    // the archetype 
+        Dictionary<Direction, List<TileType>> adjacencies;   // the adjacent tiles 
+
+        public TypeAdjacency(TileType type)
+        {
+            // Assign the archetype and create the adjacency dictionary
+            this.type = type;
+
+            adjacencies = new Dictionary<Direction, List<TileType>>();
+            foreach (Direction d in Enum.GetValues(typeof(Direction)))
+            {
+                if (d != Direction.None)
+                    adjacencies.Add(d, new List<TileType>());
+            }
+        }
+    }
 }
+

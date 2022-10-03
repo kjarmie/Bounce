@@ -311,13 +311,14 @@ namespace LevelGenerator
         }
 
         /// <summary>
-        /// Will produce the final output file containing the information needed for producing the game level.
+        /// Will produce the final output file containing the information needed for producing the game level. Will also produce a bitmap of the 
+        /// output for visualization purposes.
         /// </summary>
         private static void PrintFinalGrid(String file_name)
         {
             // Create new directory
             //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\";
+            //string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\";
             string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\";
             Directory.CreateDirectory(new_directory);
 
@@ -339,6 +340,8 @@ namespace LevelGenerator
 
             TileArchetype _archetype;
             TileType _type;
+
+            Color32 tile_color;
             for (i = 0; i < rows_in_level - 1; i++)
             {
                 for (j = 0; j < cols_in_level - 1; j++)
@@ -360,6 +363,8 @@ namespace LevelGenerator
                         writer.Write(tile);
                 }
                 // Get the type and archetype as chars
+                _archetype = level_tile_grid[i, j];
+                _type = final_tile_grid[i, j];
                 archetype = (char)level_tile_grid[i, j];
                 type = (char)final_tile_grid[i, j];
 
@@ -371,8 +376,96 @@ namespace LevelGenerator
                 writer.Write(tile);
 
                 writer.Write("\n");
+
+
             }
+            // Close the writer
             writer.Close();
+
+
+            // Now, create an image of the output
+            // Create the bitmap
+
+            Texture2D texture = Resources.Load<Texture2D>(new_directory + @"level");
+            texture = new Texture2D(cols_in_level, rows_in_level, TextureFormat.ARGB32, false);
+            
+            for (int x = 0; x < cols_in_level; x++)
+            {
+                for (int y = 0; y < rows_in_level; y++)
+                {
+                    // Get the type from the grid
+                    _type = final_tile_grid[y, x];
+
+                    // Print the tiles to the texture
+                    tile_color = GetColor32(_type);
+
+                    // Add the colour to the texture
+                    texture.SetPixel(x, rows_in_level - y - 1, tile_color);
+                }
+            }
+
+            // Save the texture
+            File.WriteAllBytes(new_directory + @"level.png", texture.EncodeToPNG());
+        }
+
+        private static Color32 GetColor32(TileType type)
+        {
+            Color32 tile_color = new Color32(0, 0, 0, 0);
+            switch (type)
+            {
+                case TileType.Dirt:
+                    tile_color = new Color32(111, 69, 33, 255); // light brown
+                    break;
+                case TileType.Stone:
+                    tile_color = new Color32(77, 74, 72, 255);  // light grey 
+                    break;
+                case TileType.Grass:
+                    tile_color = new Color32(r: 16, 57, 30, 255); // forest green
+                    break;
+                case TileType.Brick:
+                    tile_color = new Color32(r: 136, 69, 42, 255);  // reddish-brown
+                    break;
+                case TileType.Weeds:
+                    tile_color = new Color32(r: 16, 190, 30, 255); // forest green
+                    break;
+                case TileType.Mushrooms:
+                    tile_color = new Color32(r: 102, 108, 99, 255); // beige
+                    break;
+                case TileType.Flowers:
+                    tile_color = new Color32(210, 215, 40, 255); // light yellow
+                    break;
+                case TileType.NormalAir:
+                    tile_color = new Color32(255, 255, 255, 255); // blank
+                    break;
+                case TileType.BlackRose:
+                    tile_color = new Color32(0, 0, 0, 255); // black
+                    break;
+                case TileType.Boulder:
+                    tile_color = new Color32(57, 57, 57, 255);  // dark grey
+                    break;
+                case TileType.Spikes:
+                    tile_color = new Color32(43, 7, 7, 255);    // maroon
+                    break;
+                case TileType.Chest:
+                    tile_color = new Color32(62, 35, 0, 255);    // dark brown
+                    break;
+                case TileType.Gold:
+                    tile_color = new Color32(255, 169, 0, 255); // gold
+                    break;
+                case TileType.Skeleton:
+                    tile_color = new Color32(230, 230, 202, 255);   // bone white
+                    break;
+                case TileType.House:
+                    tile_color = new Color32(0, 0, 255, 255);    // blue
+                    break;
+                case TileType.Flag:
+                    tile_color = new Color32(255, 0, 0, 255);    // red
+                    break;
+                default:
+                    break;
+            }
+
+            return tile_color;
         }
 
         /// <summary>
@@ -515,5 +608,40 @@ namespace LevelGenerator
         Left = 6,
         UpLeft = 7,
         None = -1
+    }
+
+    public enum TileColours
+    {
+        // Ground
+        Dirt = 'd',
+        Stone = 's',
+        Grass = 'g',
+        Brick = 'b',
+
+        // Air
+        Weeds = 'w',
+        Mushrooms = 'm',
+        Flowers = 'f',
+        NormalAir = 'a',
+
+        // Trap
+        BlackRose = '.',
+        Boulder = 'o',
+        Spikes = '∧',
+
+        // Treasure
+        Chest = 'c',
+        Gold = 'G',
+
+        // Enemy
+        Skeleton = '#',
+
+        // Start
+        House = '~',
+
+        // End
+        Flag = '<',
+
+        None = ' '
     }
 }

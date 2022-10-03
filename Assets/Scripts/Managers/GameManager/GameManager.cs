@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Tarodev;
@@ -22,6 +24,7 @@ namespace Bounce
 
         // UI Variables
         [SerializeField] GameObject pause_panel;
+        [SerializeField] GameObject win_panel;
         [SerializeField] GameObject pause_button;
         public static bool isPaused;
         public static Vector3 startLocation;
@@ -35,10 +38,6 @@ namespace Bounce
         // Level Generation Variables
         int seed;
         public static LevelSize level_size;
-
-        // Enemy AI Variables
-        [SerializeField] public static GameObject Enemies;
-        [SerializeField] public static Skeleton skeleton;
 
         public void OnPauseClicked()
         {
@@ -56,6 +55,8 @@ namespace Bounce
             pause_panel.gameObject.SetActive(false);
             pause_button.gameObject.SetActive(true);
 
+
+
             isPaused = false;
 
             Time.timeScale = 1f;
@@ -66,6 +67,12 @@ namespace Bounce
             player_avatar.transform.position = startLocation;
 
             OnResumeClicked();
+        }
+
+        public void OnNewGameClicked()
+        {
+            // Create a new game level
+            SceneManager.LoadScene((int)Scenes.Play);
         }
 
         public void OnExitClicked()
@@ -85,6 +92,9 @@ namespace Bounce
         {
             // Reset the game variables
             OnResumeClicked();
+
+            // Hide the win panel
+            win_panel.gameObject.SetActive(false);
 
             // Set the game state to Initialize
             ChangeState(GameState.Initialize);
@@ -127,9 +137,18 @@ namespace Bounce
 
         private void HandlePreInit()
         {
-            // Here, we obtain the level creation variables from the previous menu screen
+            // Here, we clear the output folder of the level generator to ensure storage doesnt fill up unnecessarily
+            String path_name = @"./Assets/Resources/kjarmie/LevelGenerator/output/level";
+            System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
 
-
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
 
 
             // Update the game state to generate the level
@@ -143,7 +162,7 @@ namespace Bounce
         {
             // Perform the level generation
             seed = new System.Random().Next();
-            //seed = 1;
+            //seed = 823463766;
             LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size);
 
             // Once the level is generated, move to create the game view and update game state
@@ -156,7 +175,7 @@ namespace Bounce
         private void HandleGameViewCreation()
         {
             // Create the GameLevel manager
-            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
+            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"level.txt");
 
             // Create some dummy tiles that frame the level
             for (int x = -10; x < GameLevel.cols + 10; x++)
@@ -177,6 +196,7 @@ namespace Bounce
             // Initialize the TileView grid
             tileview_grid = new TileView[GameLevel.rows, GameLevel.cols];
 
+            int k = 0;
             // For each tile in the GameLevel grid, create a new TileView for it
             for (int i = 0; i < GameLevel.rows; i++)
             {
@@ -184,6 +204,12 @@ namespace Bounce
                 {
                     // Get the tile
                     Tile tile = GameLevel.level_grid[i, j];
+
+                    if (tile == null)
+                    {
+                        k++;
+                        Debug.Log(String.Format(@"Tile ({0}, {1})", i, j));
+                    }
 
                     // Create a new TileView
                     TileView tile_view = Instantiate(tileViewPrefab, new Vector3(j, -i), Quaternion.identity);
@@ -232,12 +258,24 @@ namespace Bounce
 
         }
 
-        public static void SpawnSkeleton(int row, int col)
-        {
-            Skeleton new_skeleton = Instantiate(skeleton, new Vector3(col, -row), Quaternion.identity);
-            new_skeleton.transform.parent = GameManager.Enemies.transform;
-        }
 
+        private void Update()
+        {
+            // Check if the player is at the finish
+            float x = player_avatar.transform.position.x;
+            float y = player_avatar.transform.position.y;
+
+            float end_x = GameLevel.end_tile.col;
+            float end_y = - GameLevel.end_tile.row;
+
+            if (x >= end_x - 0.5 && x < end_x + 0.5 && y >= end_y - 0.5 && y < end_y + 0.5)
+            {
+                // The player is at the end location, so we end the game
+                isPaused = true;
+                win_panel.gameObject.SetActive(true);
+
+            }
+        }
     }
 
     /// <summary>

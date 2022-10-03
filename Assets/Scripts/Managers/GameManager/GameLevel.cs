@@ -90,7 +90,7 @@ namespace Bounce
                         if (archetype == TileArchetype.Enemy)
                         {
                             // TODO: Do enemy spawning
-                            GameManager.SpawnSkeleton(i, j);
+                            EnemyManager.SpawnSkeleton(i, j);
 
                             // The created tile should be a normal air tile so we override the type and archetype
                             archetype = TileArchetype.Air;
@@ -120,9 +120,10 @@ namespace Bounce
                 }
                 reader.Close();
             }
-            catch (System.Exception e)
+            catch (System.IO.IOException e)
             {
-                System.Console.WriteLine(e.StackTrace); ;
+                System.Console.WriteLine(e.StackTrace);
+                Debug.Log(e.StackTrace);
             }
 
         }

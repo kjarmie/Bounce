@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using LevelGenerator;
 
 namespace Bounce
 {
@@ -41,6 +42,11 @@ namespace Bounce
             }
         }
 
+        public void OnVisualizeClicked()
+        {
+            SceneManager.LoadScene((int)Scenes.Visualize);
+        }
+
         public void OnQuitClicked()
         {
             Application.Quit();
@@ -51,7 +57,8 @@ namespace Bounce
     {
         MainMenu = 0,
         Selection = 1,
-        Play = 2
+        Play = 2,
+        Visualize = 3
     }
 }
 
