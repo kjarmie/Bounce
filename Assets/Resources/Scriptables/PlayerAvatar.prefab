@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 41168214703752468}
   - component: {fileID: 6970751238585453015}
   - component: {fileID: 3716305082988447819}
+  - component: {fileID: 7628391032377134155}
   - component: {fileID: 4026105857995765900}
   m_Layer: 0
   m_Name: PlayerAvatar
@@ -28,8 +29,8 @@ Transform:
   m_GameObject: {fileID: 6164048974410876029}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -74,10 +75,10 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: bbd2d2ce4b4328c4a9e5d87dc3753e84, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 8d5ac0d2a5cd4314ea0e515203928322, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
@@ -100,7 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _characterBounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0.4, y: 0.4, z: 0}
+    m_Extent: {x: 0.3, y: 0.3, z: 0}
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -111,15 +112,41 @@ MonoBehaviour:
   _moveClamp: 8
   _deAcceleration: 60
   _apexBonus: 2
-  _fallClamp: -40
+  _fallClamp: -30
   _minFallSpeed: 20
-  _maxFallSpeed: 40
+  _maxFallSpeed: 30
   _jumpHeight: 11
   _jumpApexThreshold: 1
   _coyoteTimeThreshold: 0.1
   _jumpBuffer: 0.1
   _jumpEndEarlyGravityModifier: 3
   _freeColliderIterations: 10
+--- !u!114 &7628391032377134155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6164048974410876029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af71440813ba6cc4a9c3778cf6467c2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _anim: {fileID: 0}
+  _source: {fileID: 0}
+  _groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  _jumpParticles: {fileID: 0}
+  _launchParticles: {fileID: 0}
+  _moveParticles: {fileID: 0}
+  _landParticles: {fileID: 0}
+  _footsteps: []
+  _maxTilt: 0.1
+  _tiltSpeed: 1
+  _maxIdleSpeed: 1
+  _maxParticleFallSpeed: -40
 --- !u!61 &4026105857995765900
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -137,7 +164,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.2, y: 3.2}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

@@ -12,59 +12,15 @@ namespace Bounce
     {
         [SerializeField] public Image image;
         Preset preset;
-        int seed;
+        int cur_seed;
         LevelSize level_size;
+
+        System.Random random;
 
         void Start()
         {
             preset = Preset.General;
-        }
-
-        public void OnMediumClicked()
-        {
-            // Change the level size
-            level_size = LevelSize.Medium;
-
-            // Randomize the seed
-            seed = new System.Random().Next();
-
-            GenerateAndLoad(seed);
-        }
-
-        public void OnLargeClicked()
-        {
-            // Change the level size
-            level_size = LevelSize.Large;
-
-            // Randomize the seed
-            seed = new System.Random().Next();
-
-            GenerateAndLoad(seed);
-        }
-
-        public void OnGrass()
-        {
-            preset = Preset.Grass;
-
-            RegenAndLoad(seed);
-        }
-        public void OnCave()
-        {
-            preset = Preset.Cave;
-
-            RegenAndLoad(seed);
-        }
-        public void OnDungeon()
-        {
-            preset = Preset.Dungeon;
-
-            RegenAndLoad(seed);
-        }
-        public void OnGeneral()
-        {
-            preset = Preset.General;
-
-            RegenAndLoad(seed);
+            random = new System.Random();
         }
 
         public void OnSmallClicked()
@@ -73,14 +29,67 @@ namespace Bounce
             level_size = LevelSize.Small;
 
             // Randomize the seed
-            seed = new System.Random().Next();
+            cur_seed = random.Next();
 
-            GenerateAndLoad(seed);
+            GenerateAndLoad(cur_seed);
         }
 
-        private void RegenAndLoad(int seed) {
+        public void OnMediumClicked()
+        {
+            // Change the level size
+            level_size = LevelSize.Medium;
+
+            // Randomize the seed
+            cur_seed = random.Next();
+
+            GenerateAndLoad(cur_seed);
+        }
+
+        public void OnLargeClicked()
+        {
+            // Change the level size
+            level_size = LevelSize.Large;
+
+            // Randomize the seed
+            cur_seed = random.Next();
+
+            GenerateAndLoad(cur_seed);
+        }
+
+        public void OnGrass()
+        {
+            preset = Preset.Grass;
+
+            RegenAndLoad();
+        }
+        public void OnCave()
+        {
+            preset = Preset.Cave;
+
+            RegenAndLoad();
+        }
+        public void OnDungeon()
+        {
+            preset = Preset.Dungeon;
+
+            RegenAndLoad();
+        }
+        public void OnGeneral()
+        {
+            preset = Preset.General;
+
+            RegenAndLoad();
+        }
+
+
+
+        private void RegenAndLoad()
+        {
+            // Get the WFC seed
+            int wfc_seed = random.Next();
+
             // Generate a level
-            LevelGenerator.LevelGenerator.ChangePreset(seed, preset);
+            LevelGenerator.LevelGenerator.ChangePreset(cur_seed, wfc_seed, preset);
 
             // Display the texture on the screen
             Texture2D texture = new Texture2D(1, 1);

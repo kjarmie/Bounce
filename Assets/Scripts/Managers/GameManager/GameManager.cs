@@ -91,7 +91,7 @@ namespace Bounce
         {
             // Regenerate the level from phase 3 onward
             int seed = new System.Random().Next();
-            LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Cave);
+            //LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Cave);
 
             // Reload the game level
             ReInit();
@@ -106,7 +106,7 @@ namespace Bounce
         {
             // Regenerate the level from phase 3 onward
             int seed = new System.Random().Next();
-            LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Grass);
+            //LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Grass);
 
             // Reload the game level
             ReInit();
@@ -121,7 +121,7 @@ namespace Bounce
         {
             // Regenerate the level from phase 3 onward
             int seed = new System.Random().Next();
-            LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Dungeon);
+            //LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Dungeon);
 
             // Reload the game level
             ReInit();
@@ -329,7 +329,31 @@ namespace Bounce
                     GetSectionPosition(next_id, out next_x, out next_y);
 
                     // Create an arrow from the current section to the next
-                    //Arrow arrow = Instantiate(arrow_prefab, new Vector3(cur_x, cur_y), Quaternion.identity);
+                    Arrow arrow = Instantiate(arrow_prefab, new Vector3(cur_x, cur_y), Quaternion.identity);
+                    arrow.name = String.Format(@"Arrow ({0} -> {1})", cur_id, next_id);
+                    //arrow.transform.Rotate(arrow.transform.position, 90);
+
+                    // Determine how to rotate the arrow by determining to direction from the current section to the next
+                    LevelGenerator.Direction direction = LevelGenerator.LevelGenerator.NextSectionDirection(cur_id, next_id);
+                    double rotation = 0;
+                    if(direction != Direction.None) {
+                        switch(direction) {
+                            case Direction.Up:
+                                rotation = 90;
+                                break;
+                            case Direction.Down:
+                                rotation = -90;
+                                break;
+                            case Direction.Left:
+                                rotation = 180;
+                                break;
+                            case Direction.Right:
+                                rotation = 0;
+                                break;
+                        }
+                    }
+                    //arrow.transform.Rotate(new Vector3(0, 0, (float) rotation), Space.World);
+                    arrow.transform.eulerAngles += new Vector3(0, 0, (float)rotation);
                 }
 
             }
@@ -352,8 +376,11 @@ namespace Bounce
             int col = section_id % LevelGenerator.LevelGenerator.vert_sections;
 
             // Get the centre of the section in the game level
-            sec_x = (row + 1) * (5);
-            sec_y = -(col + 1) * (4);
+            // sec_y = -(row + 1) * (4);
+            // sec_x = (col + 1) * (5);
+            
+            sec_y = -4 - (row * 8);
+            sec_x = 5 + (col * 10);
         }
 
         /// <summary>

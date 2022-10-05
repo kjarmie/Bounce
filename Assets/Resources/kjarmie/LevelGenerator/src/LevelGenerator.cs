@@ -31,8 +31,9 @@ namespace LevelGenerator
         // Game Level
         public static TileArchetype[,] level_tile_grid;     // a collection of all the tile (archetypes) in the level
         public static TileType[,] final_tile_grid;          // a collection of all the tile types in the level (the final grid)
-        public static SectionType[,] level_section_grid;    // a collection of all the sections (section_ids) in the level
-        public static LevelSize level_size;                      // the level size defines the dimensions of the level
+        public static SectionType[,] level_section_grid;    // a collection of all the sections SectionTypes in the level
+        public static int[,] level_section_id_grid;         // a collection of all the section ids in the level
+        public static LevelSize level_size;                 // the level size defines the dimensions of the level
         public static Preset preset;                        // defines the style of a level, either cave, grass, or dungeon
 
         // Dimensions
@@ -89,12 +90,17 @@ namespace LevelGenerator
         /// <summary>
         /// This method will run the generation algorithm from phase 3 onwards to reproduce the level in the new preset
         /// </summary>
-        public static void ChangePreset(int seed, Preset preset)
+        /// <param name="cur_seed">The seed used for Phase 1 and 2</param>
+        /// <param name="wfc_seed">The seed used for Phase 3 and 4</param>
+        /// <param name="preset">The preset to be used for Phase 4</param>
+        public static void ChangePreset(int cur_seed, int wfc_seed, Preset preset)
         {
             // Change the preset
             var temp_preset = LevelGenerator.preset;
             var temp_seed = LevelGenerator.seed;
             LevelGenerator.preset = preset;
+
+            LevelGenerator.seed = cur_seed;
 
             // Re-run all phases
             //GenerateLevel(seed, level_size, preset);
@@ -111,7 +117,7 @@ namespace LevelGenerator
             Debug.Log("Phase 2 Complete");
 
             // Once the first two phase have been re-run exactly, we introduce some randomness to the phase 3 and 4 by changing the seed
-            LevelGenerator.seed = seed;
+            LevelGenerator.seed = wfc_seed;
 
             // Phase 3: Place Special Tiles
             p3PlaceSpecialTiles.TrainWFC();
@@ -190,6 +196,7 @@ namespace LevelGenerator
             LevelGenerator.level_tile_grid = new TileArchetype[rows_in_level, cols_in_level];
             LevelGenerator.final_tile_grid = new TileType[rows_in_level, cols_in_level];
             LevelGenerator.level_section_grid = new SectionType[hor_sections, vert_sections];
+            LevelGenerator.level_section_id_grid = new int[hor_sections, vert_sections];
             LevelGenerator.level_path = new List<int>();
 
             // INITIALIZE ALL POSITIONS IN level_tile_grid
@@ -223,6 +230,9 @@ namespace LevelGenerator
                 {
                     // Set the section type
                     level_section_grid[i, j] = SectionType.Side;
+
+                    // Set the section_id
+                    level_section_id_grid[i, j] = section_id;
 
                     // Increment the section_id
                     section_id++;
@@ -357,8 +367,51 @@ namespace LevelGenerator
                 UnityEngine.Debug.Log("Row: " + row);
             }
 
-
         }
+
+
+        public static Direction NextSectionDirection(int start_sec_id, int next_sec_id)
+        {
+            // Get the location of the start_sec
+            int row = start_sec_id / LevelGenerator.vert_sections;
+            int col = start_sec_id % LevelGenerator.vert_sections;
+
+            // Check each direction to determine which direction the next section is relative to the start
+            Array direcs = Enum.GetValues(typeof(Direction));
+            foreach (Direction d in direcs)
+            {
+                int next_row = -1, next_col = -1;
+                switch (d)
+                {
+                    case Direction.Up:
+                        next_row = row - 1;
+                        next_col = col;
+                        break;
+                    case Direction.Down:
+                        next_row = row + 1;
+                        next_col = col;
+                        break;
+                    case Direction.Left:
+                        next_row = row;
+                        next_col = col - 1;
+                        break;
+                    case Direction.Right:
+                        next_row = row;
+                        next_col = col + 1;
+                        break;
+                }
+
+                // If the direction is in bounds, check if it is the location of the next section
+                if (next_row >= 0 && next_row < vert_sections && next_col >= 0 && next_col < hor_sections)
+                {
+                    if (level_section_id_grid[next_row, next_col] == next_sec_id) {
+                        return d;
+                    }
+                }
+            }
+            return Direction.None;
+        }
+
 
         /// <summary>
         /// Will produce the final output file containing the information needed for producing the game level. Will also produce a bitmap of the 

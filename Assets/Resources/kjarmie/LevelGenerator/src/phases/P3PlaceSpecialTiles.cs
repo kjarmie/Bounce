@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace LevelGenerator.Phases
 {
@@ -29,6 +30,8 @@ namespace LevelGenerator.Phases
         List<Direction> directions;   // holds all the directions
         double treasure_prop = 1.0 / (LevelGenerator.num_sections / 2);
         double enemy_prop = 1.0 / (LevelGenerator.num_sections / 2);
+
+        int NUM_WILDCARDS_LEFT = 0;  //TODO: REMOVE
 
         public P3PlaceSpecialTiles()
         {
@@ -119,6 +122,9 @@ namespace LevelGenerator.Phases
 
                         // Set the list
                         remaining[i, j] = possibilities;
+
+                        //TODO
+                        NUM_WILDCARDS_LEFT++;
                     }
                     else
                     {
@@ -149,6 +155,9 @@ namespace LevelGenerator.Phases
             // Make the selection
             LevelGenerator.level_tile_grid[row, col] = selection;
 
+            //TODO:
+            NUM_WILDCARDS_LEFT--;
+
             // Propagate the change
             Propagate(remaining, row, col, selection);
 
@@ -162,7 +171,16 @@ namespace LevelGenerator.Phases
                 // If the found location is [-1, -1], then the processing is done
                 if (row == -1 && col == -1)
                 {
-                    break;
+                    if (NUM_WILDCARDS_LEFT != 0)
+                    {
+                        Debug.Log("PROBLEMS");
+                        break;
+                    }
+                    else
+                    {
+                        Debug.Log("Number of wildcards left: " + NUM_WILDCARDS_LEFT);
+                        break;
+                    }
                 }
 
                 // Get the selection
@@ -177,15 +195,19 @@ namespace LevelGenerator.Phases
                 // Make the selection
                 LevelGenerator.level_tile_grid[row, col] = selection;
 
+                //TODO:
+                NUM_WILDCARDS_LEFT--;
+
                 // Propagate the change
                 Propagate(remaining, row, col, selection);
 
-                f++;
-                // Debug.Log(f);
-                if (f > 1000)
-                {
-                    break;
-                }
+                // f++;
+                
+                // if (f > 1000)
+                // {
+                //     Debug.Log("Process count: " + f);
+                //     break;
+                // }
             }
         }
 
@@ -219,7 +241,7 @@ namespace LevelGenerator.Phases
                 int count = symbol_count[archetype];
 
                 // Get the proportion
-                double prop = ((double)count) / ((double) total_tiles);
+                double prop = ((double)count) / ((double)total_tiles);
 
                 // Increase cum_frequency
                 cum_frequency += prop;
@@ -261,7 +283,7 @@ namespace LevelGenerator.Phases
 
 
             // TODO:
-            
+
 
             // // Make the selection
             // TileArchetype selection = options[index];

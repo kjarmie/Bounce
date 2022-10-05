@@ -272,6 +272,7 @@ namespace LevelGenerator.Phases
                             possibilities.Add(TileType.Chest);
                             break;
                         case TileArchetype.Enemy:
+                            possibilities.Add(TileType.Skeleton);
                             break;
                         default:
                             break;
@@ -407,6 +408,14 @@ namespace LevelGenerator.Phases
                 // Return
                 return selection;
             }
+
+            else if (options.Count == 0)
+            {
+                List<TileType> possibilities = valid_types.GetValueOrDefault(archetype);
+                selection = possibilities[0];
+                return selection;
+            }
+
 
             // Run until a value is found
             bool still_processing = true;

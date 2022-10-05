@@ -220,10 +220,25 @@ namespace LevelGenerator.Phases
                         }
                         else if (direction == 'u')
                         {
-                            // cur_section_id.SetSectionType(Section.SectionType.Jump);
-                            // next_section_id.SetSectionType(Section.SectionType.JumpLanding);
-                            LevelGenerator.SetSectionType(cur_section_id, SectionType.Jump);
+                            if (prev_direction == 'u')    // if the player moves through 2 levels up, the cur section must be Through
+                            {
+                                // cur_section_id.SetSectionType(Section.SectionType.Through);
+                                LevelGenerator.SetSectionType(cur_section_id, SectionType.Through);
+                            }
+                            else
+                            {
+                                // cur_section_id.SetSectionType(Section.SectionType.Drop);
+                                LevelGenerator.SetSectionType(cur_section_id, SectionType.Jump);
+                            }
+                            // next_section_id.SetSectionType(Section.SectionType.Landing);
                             LevelGenerator.SetSectionType(next_section_id, SectionType.JumpLanding);
+
+
+
+                            // // cur_section_id.SetSectionType(Section.SectionType.Jump);
+                            // // next_section_id.SetSectionType(Section.SectionType.JumpLanding);
+                            // LevelGenerator.SetSectionType(cur_section_id, SectionType.Jump);
+                            // LevelGenerator.SetSectionType(next_section_id, SectionType.JumpLanding);
 
                             // TODO: Make sure to add the appropriate entrances and exits based on the directions
                         }
