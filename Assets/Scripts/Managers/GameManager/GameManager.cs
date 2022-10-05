@@ -33,13 +33,11 @@ namespace Bounce
         // Terrain Variables
         [SerializeField] private GameObject terrain;
         [SerializeField] private GameObject blockers;
-        [SerializeField] private int view_width, view_height;
         private TileView[,] tileview_grid;
 
         // Level Generation Variables
         int seed;
         public static LevelSize level_size;
-        public Preset preset;
 
         public void OnPauseClicked()
         {
@@ -48,7 +46,6 @@ namespace Bounce
             pause_button.SetActive(false);
 
             isPaused = true;
-
             Time.timeScale = 1f;
         }
 
@@ -57,10 +54,7 @@ namespace Bounce
             pause_panel.gameObject.SetActive(false);
             pause_button.gameObject.SetActive(true);
 
-
-
             isPaused = false;
-
             Time.timeScale = 1f;
         }
 
@@ -82,80 +76,6 @@ namespace Bounce
             int mainMenu = (int)Scenes.MainMenu;
 
             SceneManager.LoadScene(mainMenu);
-        }
-
-
-        // The following methods will rebuild the level in one of the specific styles
-
-        public void OnCaveClicked()
-        {
-            // Regenerate the level from phase 3 onward
-            int seed = new System.Random().Next();
-            //LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Cave);
-
-            // Reload the game level
-            ReInit();
-
-            // Change the game state to spawn player
-            // ChangeState(GameState.SpawnPlayer);
-            OnPauseClicked();
-            OnResumeClicked();
-        }
-
-        public void OnGrassClicked()
-        {
-            // Regenerate the level from phase 3 onward
-            int seed = new System.Random().Next();
-            //LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Grass);
-
-            // Reload the game level
-            ReInit();
-
-            // Change the game state to spawn player
-            //ChangeState(GameState.SpawnPlayer);
-            OnPauseClicked();
-            OnResumeClicked();
-        }
-
-        public void OnDungeonClicked()
-        {
-            // Regenerate the level from phase 3 onward
-            int seed = new System.Random().Next();
-            //LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Dungeon);
-
-            // Reload the game level
-            ReInit();
-
-            // Change the game state to spawn player
-            //ChangeState(GameState.SpawnPlayer);
-
-            // Pause and unpause
-            OnPauseClicked();
-            OnResumeClicked();
-        }
-
-        private void ReInit()
-        {
-            // Destroy all enemies
-            EnemyManager.RemoveEnemies();
-
-            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
-
-            // Re-initialize all tiles in the grid
-            int k = 0;
-            // For each tile in the GameLevel grid, replace the tile in the level
-            for (int i = 0; i < GameLevel.rows; i++)
-            {
-                for (int j = 0; j < GameLevel.cols; j++)
-                {
-                    // Get the tile
-                    Tile tile = GameLevel.level_grid[i, j];
-
-                    // Re-initialize the tile view
-                    TileView tile_view = tileview_grid[i, j];
-                    tile_view.Init(tile);
-                }
-            }
         }
 
         public static event Action<GameState> OnBeforeStateChanged;
@@ -213,20 +133,6 @@ namespace Bounce
 
         private void HandlePreInit()
         {
-            // // Here, we clear the output folder of the level generator to ensure storage doesnt fill up unnecessarily
-            // String path_name = @"./Assets/Resources/kjarmie/LevelGenerator/outputs/level";
-            // System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
-
-            // foreach (FileInfo file in di.GetFiles())
-            // {
-            //     file.Delete();
-            // }
-            // foreach (DirectoryInfo dir in di.GetDirectories())
-            // {
-            //     dir.Delete(true);
-            // }
-
-
             // Update the game state to generate the level
             ChangeState(GameState.GenerateLevel);
         }
@@ -245,13 +151,12 @@ namespace Bounce
             ChangeState(GameState.CreateGameView);
         }
 
-        // <summary>
-        // This method uses the newly created GameLevel to populate the game world
-        // </summary>
+        /// <summary>
+        /// This method uses the newly created GameLevel to populate the game world
+        /// </summary>
         private void HandleGameViewCreation()
         {
             // Create the GameLevel manager
-            // GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"level.txt");
             GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
 
             // Create some dummy tiles that frame the level
@@ -302,12 +207,6 @@ namespace Bounce
                     tileview_grid[i, j] = tile_view;
                 }
             }
-
-            // Fix the camera 
-            //GetComponent<Camera>().transform.position = new Vector3((float)view_width / 2 - 0.5f, (float)view_height / 2 - 0.5f, -200);
-
-            // Ensure the level is bordered
-            //TODO: add some of the dummy tiles around the entire level
 
             // Create the arrows which show the player the move through the level
             List<int> level_path = LevelGenerator.LevelGenerator.level_path;
@@ -374,10 +273,6 @@ namespace Bounce
             // Get the coordinates of the section in the section grid
             int row = section_id / LevelGenerator.LevelGenerator.vert_sections;
             int col = section_id % LevelGenerator.LevelGenerator.vert_sections;
-
-            // Get the centre of the section in the game level
-            // sec_y = -(row + 1) * (4);
-            // sec_x = (col + 1) * (5);
             
             sec_y = -4 - (row * 8);
             sec_x = 5 + (col * 10);
@@ -404,7 +299,6 @@ namespace Bounce
             OnResumeClicked();
         }
 
-
         private void Update()
         {
             // Check if the player is at the finish
@@ -419,13 +313,12 @@ namespace Bounce
                 // The player is at the end location, so we end the game
                 isPaused = true;
                 win_panel.gameObject.SetActive(true);
-
             }
         }
     }
 
     /// <summary>
-    /// The set of possible game states
+    /// This enum holds the set of possible game states/
     /// </summary>
     [Serializable]
     public enum GameState

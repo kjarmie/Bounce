@@ -7,7 +7,7 @@ using Tarodev;
 namespace Bounce
 {
     /// <summary>
-    /// This class manages the tile assets so that loading is fast
+    /// This class manages the tile assets so that loading is faster.
     /// </summary>
     public class SpriteManager : StaticInstance<SpriteManager>
     {

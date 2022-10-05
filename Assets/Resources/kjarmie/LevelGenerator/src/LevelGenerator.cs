@@ -103,7 +103,6 @@ namespace LevelGenerator
             LevelGenerator.seed = cur_seed;
 
             // Re-run all phases
-            //GenerateLevel(seed, level_size, preset);
 
             // First, perform some setup
             doSetup(LevelGenerator.seed, level_size, preset);
@@ -135,16 +134,6 @@ namespace LevelGenerator
             // Now, reset all changed variables
             LevelGenerator.preset = temp_preset;
             LevelGenerator.seed = temp_seed;
-        }
-
-        /// <summary>
-        /// Will produce images for each of the sections tile grids, and the main level tile grid
-        /// </summary>
-        private static void Visualize()
-        {
-            // Create the level visual
-
-            // Create the section visual
         }
 
         /// <summary>
@@ -369,7 +358,12 @@ namespace LevelGenerator
 
         }
 
-
+        /// <summary>
+        /// This method will return the direction from one section to another.
+        /// </summary>
+        /// <param name="start_sec_id">ID of the origin section. </param>
+        /// <param name="next_sec_id">ID of the target section. </param>
+        /// <returns>The Direction of the target section, or none if the sections are not adjacent.</returns>
         public static Direction NextSectionDirection(int start_sec_id, int next_sec_id)
         {
             // Get the location of the start_sec
@@ -404,7 +398,8 @@ namespace LevelGenerator
                 // If the direction is in bounds, check if it is the location of the next section
                 if (next_row >= 0 && next_row < vert_sections && next_col >= 0 && next_col < hor_sections)
                 {
-                    if (level_section_id_grid[next_row, next_col] == next_sec_id) {
+                    if (level_section_id_grid[next_row, next_col] == next_sec_id)
+                    {
                         return d;
                     }
                 }
@@ -511,6 +506,11 @@ namespace LevelGenerator
             File.WriteAllBytes(new_directory + @"level.png", texture.EncodeToPNG());
         }
 
+/// <summary>
+/// This method will return, for each TileType, the associated Color32. Used when producing the output PNG.
+/// </summary>
+/// <param name="type">The TileType of a tile. </param>
+/// <returns>A Color32 that is associated with the TileType. </returns>
         private static Color32 GetColor32(TileType type)
         {
             Color32 tile_color = new Color32(0, 0, 0, 0);
@@ -713,6 +713,9 @@ namespace LevelGenerator
         None = -1
     }
 
+    /// <summary>
+    /// Defines the preset that the WFC will be trained on for Phase 4.
+    /// </summary>
     public enum Preset
     {
         Dungeon,

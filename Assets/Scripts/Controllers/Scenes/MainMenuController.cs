@@ -12,36 +12,6 @@ namespace Bounce
             SceneManager.LoadScene((int)Scenes.Selection);
         }
 
-        public void OnTrainingClicked()
-        {
-            //SceneManager.LoadScene((int)Scenes.Options);
-
-            //LevelGenerator.LevelGenerator.seed = 35050;
-            //LevelGenerator.LevelGenerator.random = new System.Random(35050);
-            //LevelGenerator.Phases.P3PlaceSpecialTiles p3 = new LevelGenerator.Phases.P3PlaceSpecialTiles();
-            //p3.TrainWFC();
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            System.Random random = new System.Random();
-            int seed;
-            for (int i = 0; i < 100; i++)
-            {
-                watch.Reset();
-                watch.Start();
-
-                //seed = random.Next();
-                seed = 25;
-                LevelGenerator.LevelGenerator.GenerateLevel(seed, LevelGenerator.LevelSize.Small, Preset.Cave);
-
-                watch.Stop();
-
-                Debug.Log("Time elapsed: " + watch.ElapsedMilliseconds + "ms");
-
-                Dictionary<LevelGenerator.Tiles.Tile, int> dict = new Dictionary<LevelGenerator.Tiles.Tile, int>();
-
-                LevelGenerator.Tiles.Tile tile = new LevelGenerator.Tiles.Tile(LevelGenerator.TileArchetype.None, LevelGenerator.TileType.None, 0, 1);
-            }
-        }
-
         public void OnVisualizeClicked()
         {
             SceneManager.LoadScene((int)Scenes.Visualize);
@@ -53,6 +23,10 @@ namespace Bounce
         }
 
     }
+
+    /// <summary>
+    /// This enum holds the various scenes used in the application. 
+    /// </summary>
     public enum Scenes
     {
         MainMenu = 0,

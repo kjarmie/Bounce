@@ -93,8 +93,6 @@ namespace LevelGenerator.Phases
                 }
             }
 
-            //TODO: MAKE SURE TO SELECT THE STARTING SECTION IN THE LEVELGENERATOR
-
             // Continuously try to find a path from the start to the end recursively until a solution is found
             while (true)
             {
@@ -136,7 +134,6 @@ namespace LevelGenerator.Phases
                     {
                         // Try to select a direction based on the chance. A direction may not be selected if it has been selected already,
                         // or if the previous direction was opposite (i.e. no left if previous was right, no up if down, etc.)
-
                         case 0: // up
                             if (!up)    // if up has not yet been checked
                             {
@@ -197,66 +194,45 @@ namespace LevelGenerator.Phases
                             // Check the previous direction 
                             if (prev_direction == 'd')
                             {
-                                //cur_section_id.SetSectionType(Section.SectionType.Landing);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Landing);  //TODO: Update the section type with a method
                             }
                             else if (prev_direction == 'u')
                             {
-                                //cur_section_id.SetSectionType(Section.SectionType.JumpLanding);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.JumpLanding);
                             }
                             else if (prev_direction == ' ')
                             {   // special case for when the first movement is down, and next is left
-                                //cur_section_id.SetSectionType(Section.SectionType.Drop);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Drop);
                             }
                             else    // direction was left or right
                             {
-                                // cur_section_id.SetSectionType(Section.SectionType.Normal);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Normal);
                             }
-                            // next_section_id.SetSectionType(Section.SectionType.Normal);
                             LevelGenerator.SetSectionType(next_section_id, SectionType.Normal);
                         }
                         else if (direction == 'u')
                         {
                             if (prev_direction == 'u')    // if the player moves through 2 levels up, the cur section must be Through
                             {
-                                // cur_section_id.SetSectionType(Section.SectionType.Through);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Through);
                             }
                             else
                             {
-                                // cur_section_id.SetSectionType(Section.SectionType.Drop);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Jump);
                             }
-                            // next_section_id.SetSectionType(Section.SectionType.Landing);
                             LevelGenerator.SetSectionType(next_section_id, SectionType.JumpLanding);
-
-
-
-                            // // cur_section_id.SetSectionType(Section.SectionType.Jump);
-                            // // next_section_id.SetSectionType(Section.SectionType.JumpLanding);
-                            // LevelGenerator.SetSectionType(cur_section_id, SectionType.Jump);
-                            // LevelGenerator.SetSectionType(next_section_id, SectionType.JumpLanding);
-
-                            // TODO: Make sure to add the appropriate entrances and exits based on the directions
                         }
                         else if (direction == 'd')
                         {
                             if (prev_direction == 'd')    // if the player moves through 2 levels down, the cur section must be Through
                             {
-                                // cur_section_id.SetSectionType(Section.SectionType.Through);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Through);
                             }
                             else
                             {
-                                // cur_section_id.SetSectionType(Section.SectionType.Drop);
                                 LevelGenerator.SetSectionType(cur_section_id, SectionType.Drop);
                             }
-                            // next_section_id.SetSectionType(Section.SectionType.Landing);
                             LevelGenerator.SetSectionType(next_section_id, SectionType.Landing);
-                            // TODO: Make sure to add the appropriate entrances and exits based on the directions
                         }
                     }
 
@@ -267,7 +243,6 @@ namespace LevelGenerator.Phases
                         if ((cur_section_id >= LevelGenerator.num_sections - LevelGenerator.vert_sections) && (cur_section_id < LevelGenerator.num_sections))
                         {
                             // Make this section the end section, and finish processing
-                            // LevelGenerator.SetEndSection(cur_section_id);
                             LevelGenerator.end_section_id = cur_section_id;   // TODO: Set the end section
                             return false;   // method is not still processing, so return false
                         }
@@ -288,7 +263,6 @@ namespace LevelGenerator.Phases
 
                         return true;    // still processing
                     }
-
                     // If not all directions have been checked, method will try a new direction
                 }
                 else
@@ -317,7 +291,6 @@ namespace LevelGenerator.Phases
         {
 
             // Create new directory
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P1\" + seed + @"\";
             string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P1\";
             Directory.CreateDirectory(new_directory);
 

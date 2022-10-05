@@ -74,7 +74,6 @@ namespace LevelGenerator.Phases
             // SELECT A PREFAB
             string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
 
-            //string new_directory = @"C:\Users\quzei\Documents\Development\C#\LevelGenerator\data\sections\8x10\prefabs\" + section_type;
             string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\sections\8x10\prefabs\" + (int) section_type;
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
@@ -98,6 +97,8 @@ namespace LevelGenerator.Phases
                 // Load a line of types
                 char[] line = reader.ReadLine().ToCharArray();
 
+                int id = 0;
+
                 for (int j = 0; j < LevelGenerator.cols_in_sec; j++)
                 {
                     // Load the tile archetype from the text file
@@ -113,11 +114,13 @@ namespace LevelGenerator.Phases
                         if (section_id == LevelGenerator.start_section_id)
                         {
                             LevelGenerator.level_tile_grid[level_row, level_col] = TileArchetype.Start;
+                            LevelGenerator.start_tile_id = id;
                         }
                         // If the current section is the end
                         else if (section_id == LevelGenerator.end_section_id)
                         {
                             LevelGenerator.level_tile_grid[level_row, level_col] = TileArchetype.End;
+                            LevelGenerator.end_tile_id = id;
                         }
                         // Otherwise
                         else
@@ -131,6 +134,9 @@ namespace LevelGenerator.Phases
 
                     // Increment the level_col
                     level_col++;
+
+                    // Increment id
+                    id++;
                 }
 
                 // Increment the level_row
@@ -144,8 +150,6 @@ namespace LevelGenerator.Phases
         public void PrintLevelTileGrid(String file_name)
         {
             // Create new directory
-            //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\" + seed + @"\";
             string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\";
             Directory.CreateDirectory(new_directory);
 
@@ -172,8 +176,6 @@ namespace LevelGenerator.Phases
         private void PrintSectionTileGrid(int section_id, TileArchetype[,] section_tile_grid)
         {
             // Create new directory
-            //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\" + seed + @"\sections\";
             string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\sections\";
             Directory.CreateDirectory(new_directory);
 

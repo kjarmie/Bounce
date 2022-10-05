@@ -31,41 +31,7 @@ namespace LevelGenerator.Phases
             // Upon creation, cache references to often used global generation-variables from LevelGenerator
             seed = LevelGenerator.seed;
             random = LevelGenerator.random;
-        }
-
-
-        // For each of the tile archetypes, we need to include the possible sub-types
-        // these symbols will be used. This system is not very expandable, but it works for this demonstration
-
-        // Maybe the final output could be a comma delimited grid of names (e.g dirt,dirt,stone,brick) rather than symbols which gets messy
-        // private enum GroundTiles
-        // {
-        //     Dirt = 'd',
-        //     Stone = 's',
-        //     Grass = 'g',
-        //     Brick = 'b'
-        // }
-
-        // private enum AirTiles
-        // {
-        //     Weeds = 'w',
-        //     Mushroom = 'm',
-        //     Flowers = 'f'
-        // }
-
-        // private enum TrapTiles
-        // {
-        //     BlackRose = '.',
-        //     Boulder = 'o',
-        //     Spikes = '∧'
-        // }
-
-        // private enum TreasureTiles
-        // {
-        //     Chest = 'c',
-        //     Gold = 'g'
-        // }
-
+        }        
 
         /// <summary>
         /// This method will use the Wave Function Collapse Algorithm to set a style for a level from a predefined style. The WFC is a constraint optimization technique 
@@ -89,8 +55,6 @@ namespace LevelGenerator.Phases
             // The WFC algorithm starts with every cell having ALL possible options selected. In this case, it would mean that every tile is simultaneously every type of Ground, Air, Trap, Enemy, Treasure, etc.
             // This obviously will not work since the input it is given is a grid where the archetypes are set. Thus, the algorithm first needs eliminate all types that do not match the archetype. 
             // For example, if a tile is 1 (Ground), the algorithm would eliminate all Air, Trap, Enemy, and Treasure types from the possible list. 
-
-
 
             // The final output of the level will be a grid of comma-delimited pairs of symbols. The first is the archetype, the second is the specific type.
             // Here is a very small example which has a floor and ceiling all of dirt, air in the middle, with a spike trap on the left and a treasure chest on the right
@@ -151,7 +115,6 @@ namespace LevelGenerator.Phases
             // PERFORM WAVE FUNCTION COLLAPSE
             Preset preset = LevelGenerator.preset;
             bool completed = DoWFC(preset);
-            int i = 0;
             while (!completed)
             {
                 // Reset the LevelGenerator final grid
@@ -159,11 +122,6 @@ namespace LevelGenerator.Phases
 
                 // Perform WFC
                 completed = DoWFC(preset);
-
-                //TODO: Remove, since just for testing
-                i++;
-                if (i > 100)
-                    break;
             }
 
             // SAVE THE FILE AS THE FINAL OUTPUT
@@ -381,8 +339,6 @@ namespace LevelGenerator.Phases
             // If options.Count is 0, we have run into and error, so we return None
             if (options.Count == 0)
             {
-                num_zero_possibilities++;
-
                 // Since we have no options to pick for WFC, we simply randomly assign a value from those available based on the archetype.
                 // Get the archetype
                 archetype = LevelGenerator.level_tile_grid[row, col];
@@ -393,34 +349,22 @@ namespace LevelGenerator.Phases
                 // Select a random type
                 index = random.Next(0, possibilities.Count);
 
-                try
-                {
-                    // Make the selection
-                    selection = possibilities[index];
-                }
-                catch (System.Exception e)
-                {
-                    Debug.Log(e.StackTrace);
-                }
-
-                
+                // Make the selection
+                selection = possibilities[index];                
 
                 // Return
                 return selection;
             }
 
-            else if (options.Count == 0)
+            else if (options.Count == 1)
             {
                 List<TileType> possibilities = valid_types.GetValueOrDefault(archetype);
                 selection = possibilities[0];
                 return selection;
             }
 
-
             // Run until a value is found
             bool still_processing = true;
-            int TEST = 0;
-            // while (still_processing && TEST < 100)
             while (still_processing)
             {
                 // Now, get a random probability
@@ -441,11 +385,8 @@ namespace LevelGenerator.Phases
                         // Break
                         still_processing = false;
                         break;
-
-                        //TODO: Maybe return here since we don't need to check the enemy, trap, and treasure tiles specifically
                     }
                 }
-                TEST++;
             }
 
             return selection;
@@ -500,7 +441,6 @@ namespace LevelGenerator.Phases
 
             // Once the immediate neighbours in the 8 cardinal/ordinal directions, these need to then have their neighbours updated
             // For every tile in the 8 directions, update their neighbours
-            //TODO: Do the update for cascading propagation
             doCascadePropagation(remaining, row, col);
         }
 
@@ -536,12 +476,12 @@ namespace LevelGenerator.Phases
 
                                 // Update all the rules for direct neighbours
                                 List<TileType> valid = new List<TileType>();
-                                for (int k = 0; k < weights.GetUpperBound(2); k++)  // TODO: also runs to archetypes.Count()
+                                for (int k = 0; k < weights.GetUpperBound(2); k++)
                                 {
                                     // Get the symbol at position k 
                                     TileType symbol = types[k];
 
-                                    // Aa symbol is a valid option if the weight is not zero and if it matches the archetype in the direction
+                                    // A symbol is a valid option if the weight is not zero and if it matches the archetype in the direction
                                     if (weights[index, d, k] != 0 && archetype == LevelGenerator.level_tile_grid[next_row, next_col])
                                     {
                                         // Add to valid
@@ -609,9 +549,6 @@ namespace LevelGenerator.Phases
             //    b) Create a list of all unique symbols (all the main archetypes)
             //    c) For each unique symbol, find all occurrences and determine which symbols border it on the 8 cardinal directions
             //    d) Update the weightings for the that symbol
-
-            // The algorithm also processes rules. The weights give how often a particular arrangement occurs, but we also define adjacency rules.
-            // The algorithm will scan an input file and learn all the possible adjacency rules.
 
             // GET ALL UNIQUE SYMBOLS
             Array symbols = Enum.GetValues(typeof(TileType));
@@ -695,7 +632,7 @@ namespace LevelGenerator.Phases
                                         int index = types.IndexOf(symbol_in_direction);
 
                                         // Increment the weight
-                                        w[(int)d, index] += 1;  // TODO: Maybe use a proportion, rather than a value
+                                        w[(int)d, index] += 1;
 
                                     }   // otherwise, continue to the other directions
 
@@ -708,7 +645,7 @@ namespace LevelGenerator.Phases
 
             // Save all the weights for later use
             string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset + @"\weights";
-            DeleteDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
+            ClearDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
             Directory.CreateDirectory(new_directory);
             StreamWriter writer;
             for (int i = 0; i < weights.Count; i++)
@@ -788,7 +725,7 @@ namespace LevelGenerator.Phases
                     line = reader.ReadLine().Split(',');
 
                     // For each item in the file
-                    for (k = 0; k < line.Length; k++)   // TODO: should be equal to num_inputs
+                    for (k = 0; k < line.Length; k++)
                     {
                         // Get the weight
                         int weight = int.Parse(line[k]);
@@ -995,7 +932,7 @@ namespace LevelGenerator.Phases
             return training_data;
         }
 
-        private void DeleteDirectory(string path_name)
+        private void ClearDirectory(string path_name)
         {
             System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
             if(di == null)

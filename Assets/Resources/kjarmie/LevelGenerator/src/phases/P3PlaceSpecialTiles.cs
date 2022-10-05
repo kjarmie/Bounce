@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace LevelGenerator.Phases
 {
@@ -11,16 +10,8 @@ namespace LevelGenerator.Phases
     class P3PlaceSpecialTiles : Phase
     {
         // Random generation
-        protected int seed;                 // the random seed used for the entire generation process
-        protected System.Random random;            // the random number generator which is used every time a random number is needed
-
-        // For special tile placement
-        int max_treasure_tiles = LevelGenerator.num_sections / 2;
-        int max_enemy_tiles = LevelGenerator.num_sections / 2;
-        int max_trap_tiles = LevelGenerator.num_sections / 2;
-        int placed_enemy_tiles = 0;
-        int placed_treasure_tiles = 0;
-        int placed_trap_tiles = 0;
+        protected int seed;                         // the random seed used for the entire generation process
+        protected System.Random random;             // the random number generator which is used every time a random number is needed
 
         // For WFC
         int[,,] weights;        // holds the weights for the neighbouring tiles for WFC where i-> symbol, j-> direction, k-> neighbouring symbol
@@ -28,10 +19,6 @@ namespace LevelGenerator.Phases
         int total_tiles = 0;
         List<TileArchetype> archetypes;  // holds each unique symbol
         List<Direction> directions;   // holds all the directions
-        double treasure_prop = 1.0 / (LevelGenerator.num_sections / 2);
-        double enemy_prop = 1.0 / (LevelGenerator.num_sections / 2);
-
-        int NUM_WILDCARDS_LEFT = 0;  //TODO: REMOVE
 
         public P3PlaceSpecialTiles()
         {
@@ -85,7 +72,6 @@ namespace LevelGenerator.Phases
 
             foreach (TileArchetype c in symbols)
             {
-                //if (c != TileArchetype.Start && c != TileArchetype.End && c != TileArchetype.Wildcard)
                 if (c != TileArchetype.None)
                     archetypes.Add(c);
             }
@@ -122,9 +108,6 @@ namespace LevelGenerator.Phases
 
                         // Set the list
                         remaining[i, j] = possibilities;
-
-                        //TODO
-                        NUM_WILDCARDS_LEFT++;
                     }
                     else
                     {
@@ -155,14 +138,10 @@ namespace LevelGenerator.Phases
             // Make the selection
             LevelGenerator.level_tile_grid[row, col] = selection;
 
-            //TODO:
-            NUM_WILDCARDS_LEFT--;
-
             // Propagate the change
             Propagate(remaining, row, col, selection);
 
             // Now, perform the WFC on the rest of the grid until it is finished
-            int f = 0;
             while (true)
             {
                 // Determine which tiles are still remaining, and their entropy
@@ -171,16 +150,7 @@ namespace LevelGenerator.Phases
                 // If the found location is [-1, -1], then the processing is done
                 if (row == -1 && col == -1)
                 {
-                    if (NUM_WILDCARDS_LEFT != 0)
-                    {
-                        Debug.Log("PROBLEMS");
-                        break;
-                    }
-                    else
-                    {
-                        Debug.Log("Number of wildcards left: " + NUM_WILDCARDS_LEFT);
-                        break;
-                    }
+                    break;
                 }
 
                 // Get the selection
@@ -195,19 +165,8 @@ namespace LevelGenerator.Phases
                 // Make the selection
                 LevelGenerator.level_tile_grid[row, col] = selection;
 
-                //TODO:
-                NUM_WILDCARDS_LEFT--;
-
                 // Propagate the change
                 Propagate(remaining, row, col, selection);
-
-                // f++;
-                
-                // if (f > 1000)
-                // {
-                //     Debug.Log("Process count: " + f);
-                //     break;
-                // }
             }
         }
 
@@ -273,61 +232,11 @@ namespace LevelGenerator.Phases
                         // Break
                         still_processing = false;
                         break;
-
-                        //TODO: Maybe return here since we don't need to check the enemy, trap, and treasure tiles specifically
                     }
                 }
                 TEST++;
             }
 
-
-
-            // TODO:
-
-
-            // // Make the selection
-            // TileArchetype selection = options[index];
-
-            // // Check the proportion of enemy, trap and treasure tiles
-            // if (selection == TileArchetype.Enemy)
-            // {
-            //     if (placed_enemy_tiles <= max_enemy_tiles && random.NextDouble() <= enemy_prop)
-            //     {
-            //         selection = TileArchetype.Enemy;
-            //         placed_enemy_tiles++;
-            //     }
-            //     else
-            //     {
-            //         // Reset the selection to be air
-            //         selection = TileArchetype.Air;
-            //     }
-            // }
-            // else if (selection == TileArchetype.Treasure)
-            // {
-            //     if (placed_treasure_tiles <= max_treasure_tiles && random.NextDouble() <= treasure_prop)
-            //     {
-            //         selection = TileArchetype.Treasure;
-            //         placed_treasure_tiles++;
-            //     }
-            //     else
-            //     {
-            //         // Reset the selection to be air
-            //         selection = TileArchetype.Air;
-            //     }
-            // }
-            // else if (selection == TileArchetype.Trap)
-            // {
-            //     if (placed_trap_tiles <= max_trap_tiles && random.NextDouble() <= treasure_prop)
-            //     {
-            //         selection = TileArchetype.Treasure;
-            //         placed_trap_tiles++;
-            //     }
-            //     else
-            //     {
-            //         // Reset the selection to be air
-            //         selection = TileArchetype.Air;
-            //     }
-            // }
             return selection;
         }
 
@@ -412,7 +321,7 @@ namespace LevelGenerator.Phases
 
                                 // Update all the rules for direct neighbours
                                 List<TileArchetype> valid = new List<TileArchetype>();
-                                for (int k = 0; k < weights.GetUpperBound(2); k++)  // TODO: also runs to archetypes.Count()
+                                for (int k = 0; k < weights.GetUpperBound(2); k++)
                                 {
                                     // Get the symbol at position k 
                                     TileArchetype symbol = archetypes[k];
@@ -423,7 +332,6 @@ namespace LevelGenerator.Phases
                                         valid.Add(symbol);
                                     }
                                 }
-
                                 // Set the remaining possibilities
                                 remaining[next_row, next_col] = valid;
                             }
@@ -469,7 +377,6 @@ namespace LevelGenerator.Phases
                     }
                 }
             }
-            System.Console.WriteLine();
         }
 
         /// <summary>
@@ -484,9 +391,6 @@ namespace LevelGenerator.Phases
             //    b) Create a list of all unique symbols (all the main archetypes)
             //    c) For each unique symbol, find all occurrences and determine which symbols border it on the 8 cardinal directions
             //    d) Update the weightings for the that symbol
-
-            // The algorithm also processes rules. The weights give how often a particular arrangement occurs, but we also define adjacency rules.
-            // The algorithm will scan an input file and learn all the possible adjacency rules.
 
             // GET ALL UNIQUE SYMBOLS
             Array symbols = Enum.GetValues(typeof(TileArchetype));
@@ -571,9 +475,8 @@ namespace LevelGenerator.Phases
                                         int index = archetypes.IndexOf(symbol_in_direction);
 
                                         // Increment the weight
-                                        w[(int)d, index] += 1;  // TODO: Maybe use a proportion, rather than a value
+                                        w[(int)d, index] += 1; 
                                     }   // otherwise, continue to the other directions
-
                                 }
                             }
                         }
@@ -620,8 +523,6 @@ namespace LevelGenerator.Phases
             str = archetypes[k] + "," + symbol_count[archetypes[k]];
             writer.Write(str);
             writer.Close();
-
-            Console.WriteLine();
         }
 
         /// <summary>

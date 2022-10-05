@@ -19,11 +19,6 @@ namespace Bounce
         public static Tile start_tile;        // the start tile
         public static Tile end_tile;          // the end tile
 
-        // Player Information
-
-
-
-
         /// <summary>
         /// This method will create a new game level from a file. The file must be in the required format.
         /// </summary>

@@ -14,7 +14,6 @@ namespace Bounce
         Preset preset;
         int cur_seed;
         LevelSize level_size;
-
         System.Random random;
 
         void Start()
