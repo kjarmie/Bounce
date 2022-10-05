@@ -10,87 +10,89 @@ namespace Bounce
 {
     public class VisualizeController : MonoBehaviour
     {
-        [SerializeField] public GameObject display;
         [SerializeField] public Image image;
-
-        Texture2D texture;
-
-        LevelSize size;
+        Preset preset;
         int seed;
+        LevelSize level_size;
 
-        // 
+        void Start()
+        {
+            preset = Preset.General;
+        }
 
-        public void OnMediumClicked() {
-            // Set the seed to be random
-            int seed = new System.Random().Next();
-            size = LevelSize.Medium;
+        public void OnMediumClicked()
+        {
+            // Change the level size
+            level_size = LevelSize.Medium;
 
-            // Generate a level
-            LevelGenerator.LevelGenerator.GenerateLevel(seed, size);
+            // Randomize the seed
+            seed = new System.Random().Next();
 
-            // Display the texture on the screen
-            this.texture = new Texture2D(1, 1);
-            this.texture.filterMode = FilterMode.Point;
-            this.texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
-            image.sprite = Sprite.Create(this.texture, new Rect(0, 0, this.texture.width, this.texture.height), new Vector2(0, 0));
+            GenerateAndLoad(seed);
         }
 
         public void OnLargeClicked()
         {
-            // Set the seed to be random
-            int seed = new System.Random().Next();
-            size = LevelSize.Large;
+            // Change the level size
+            level_size = LevelSize.Large;
 
-            GenerateAndLoad(seed, LevelSize.Large);
+            // Randomize the seed
+            seed = new System.Random().Next();
+
+            GenerateAndLoad(seed);
+        }
+
+        public void OnGrass()
+        {
+            preset = Preset.Grass;
+
+            RegenAndLoad(seed);
+        }
+        public void OnCave()
+        {
+            preset = Preset.Cave;
+
+            RegenAndLoad(seed);
+        }
+        public void OnDungeon()
+        {
+            preset = Preset.Dungeon;
+
+            RegenAndLoad(seed);
+        }
+        public void OnGeneral()
+        {
+            preset = Preset.General;
+
+            RegenAndLoad(seed);
         }
 
         public void OnSmallClicked()
         {
-            // Clear the current sprite            
-            SpriteRenderer renderer = display.GetComponent<SpriteRenderer>();
-            Resources.UnloadAsset(renderer.sprite);
-            Resources.UnloadUnusedAssets();
-            renderer.sprite = null;
+            // Change the level size
+            level_size = LevelSize.Small;
 
-            // Set the seed to be random
-            int seed = new System.Random().Next();
-            size = LevelSize.Small;
+            // Randomize the seed
+            seed = new System.Random().Next();
 
-            // Generate a level
-            LevelGenerator.LevelGenerator.GenerateLevel(seed, size);
-
-            // Refresh the directory
-            DirectoryInfo directory = new DirectoryInfo(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level");
-            directory.Refresh();
-
-            // Load the texture generated
-            // Texture2D texture = Resources.Load<Texture2D>("kjarmie/LevelGenerator/outputs/level/level");
-            // this.texture = new Texture2D(texture.width, texture.height);
-            // for (int x = 0; x < texture.width; x++)
-            // {
-            //     for (int y = 0; y < texture.height; y++)
-            //     {
-            //         this.texture.SetPixel(x, y, texture.GetPixel(x, y));
-            //     }
-            // }
-            // this.texture.Apply();
-
-            // Display the texture on the screen
-            Sprite sprite = Resources.Load<Sprite>("kjarmie/LevelGenerator/outputs/level");
-            sprite = Resources.Load<Sprite>("kjarmie/LevelGenerator/outputs/level/" + seed + @"/level");
-            sprite = Resources.Load<Sprite>("kjarmie/LevelGenerator/outputs/level/level");
-
-            this.texture = new Texture2D(1, 1);
-            this.texture.filterMode = FilterMode.Point;
-            this.texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
-            sprite = Sprite.Create(this.texture, new Rect(0, 0, this.texture.width, this.texture.height), new Vector2(0, 0));
-            image.sprite = sprite;
-            renderer.sprite = sprite;
+            GenerateAndLoad(seed);
         }
 
-        private void GenerateAndLoad(int seed, LevelSize level_size) {
+        private void RegenAndLoad(int seed) {
             // Generate a level
-            LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size);
+            LevelGenerator.LevelGenerator.ChangePreset(seed, preset);
+
+            // Display the texture on the screen
+            Texture2D texture = new Texture2D(1, 1);
+            texture.filterMode = FilterMode.Point;
+            texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
+            image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+        }
+
+        private void GenerateAndLoad(int seed)
+        {
+            // Generate a level
+            LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size, preset);
 
             // Display the texture on the screen
             Texture2D texture = new Texture2D(1, 1);

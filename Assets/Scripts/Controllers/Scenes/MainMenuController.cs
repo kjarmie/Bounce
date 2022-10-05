@@ -30,7 +30,7 @@ namespace Bounce
 
                 //seed = random.Next();
                 seed = 25;
-                LevelGenerator.LevelGenerator.GenerateLevel(seed, LevelGenerator.LevelSize.Small);
+                LevelGenerator.LevelGenerator.GenerateLevel(seed, LevelGenerator.LevelSize.Small, Preset.Cave);
 
                 watch.Stop();
 

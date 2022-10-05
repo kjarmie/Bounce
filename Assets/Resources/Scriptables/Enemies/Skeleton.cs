@@ -44,15 +44,15 @@ namespace Bounce
                 else
                     angle = new Vector2(-transform.position.x - 1, transform.position.y + 2);
 
-                Debug.DrawRay(transform.position, angle, Color.blue, 1);
+                // Debug.DrawRay(transform.position, angle, Color.blue, 1);
                 RaycastHit hit;
                 bool isHit = Physics.Raycast(transform.position, angle, out hit);
                 bool on_edge = !Physics.Raycast(transform.position, angle, (float)0.01, LayerMask.NameToLayer("Default"));
-                Debug.Log("Position x: " + transform.position.x);
-                Debug.Log("Position y: " + transform.position.y);
+                // Debug.Log("Position x: " + transform.position.x);
+                // Debug.Log("Position y: " + transform.position.y);
 
-                Debug.Log(message: "Angle x: " + angle.x);
-                Debug.Log("Angle y: " + angle.y);
+                // Debug.Log(message: "Angle x: " + angle.x);
+                // Debug.Log("Angle y: " + angle.y);
 
                 // If not, move in the same direction
                 if (!on_edge)

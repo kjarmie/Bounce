@@ -32,7 +32,8 @@ namespace LevelGenerator
         public static TileArchetype[,] level_tile_grid;     // a collection of all the tile (archetypes) in the level
         public static TileType[,] final_tile_grid;          // a collection of all the tile types in the level (the final grid)
         public static SectionType[,] level_section_grid;    // a collection of all the sections (section_ids) in the level
-        public static char level_size;                      // the level size defines the dimensions of the level
+        public static LevelSize level_size;                      // the level size defines the dimensions of the level
+        public static Preset preset;                        // defines the style of a level, either cave, grass, or dungeon
 
         // Dimensions
         public static int rows_in_level = 0;                // total number of rows of tiles in level
@@ -54,12 +55,12 @@ namespace LevelGenerator
 
         // endregion
 
-        public static void GenerateLevel(int seed, LevelSize level_size)
+        public static void GenerateLevel(int seed, LevelSize level_size, Preset preset)
         {
             // This method will perform the generation of a level from start to finish
 
             // First, perform some setup
-            doSetup(seed, level_size);
+            doSetup(seed, level_size, preset);
 
             // Phase 1: Generate Paths
             p1GenPaths.Run();
@@ -75,7 +76,7 @@ namespace LevelGenerator
             Debug.Log("Phase 3 Complete");
 
             // Phase 4: Set Level Style
-            p4SetLevelStyle.TrainWFC();
+            p4SetLevelStyle.TrainWFC(preset);
             p4SetLevelStyle.Run();
             Debug.Log("Phase 4 Complete");
 
@@ -83,6 +84,51 @@ namespace LevelGenerator
             PrintFinalGrid("level.txt");
 
             Debug.Log("LEVEL GENERATION COMPLETE");
+        }
+
+        /// <summary>
+        /// This method will run the generation algorithm from phase 3 onwards to reproduce the level in the new preset
+        /// </summary>
+        public static void ChangePreset(int seed, Preset preset)
+        {
+            // Change the preset
+            var temp_preset = LevelGenerator.preset;
+            var temp_seed = LevelGenerator.seed;
+            LevelGenerator.preset = preset;
+
+            // Re-run all phases
+            //GenerateLevel(seed, level_size, preset);
+
+            // First, perform some setup
+            doSetup(LevelGenerator.seed, level_size, preset);
+
+            // Phase 1: Generate Paths
+            p1GenPaths.Run();
+            Debug.Log("Phase 1 Complete");
+
+            // Phase 2: Generate Sections
+            p2GenSections.Run();
+            Debug.Log("Phase 2 Complete");
+
+            // Once the first two phase have been re-run exactly, we introduce some randomness to the phase 3 and 4 by changing the seed
+            LevelGenerator.seed = seed;
+
+            // Phase 3: Place Special Tiles
+            p3PlaceSpecialTiles.TrainWFC();
+            p3PlaceSpecialTiles.Run();
+            Debug.Log("Phase 3 Complete");
+
+            // Phase 4: Set Level Style
+            p4SetLevelStyle.TrainWFC(preset);
+            p4SetLevelStyle.Run();
+            Debug.Log("Phase 4 Complete");
+
+            // Finally, we produce the output that can be used by other programs
+            PrintFinalGrid("level.txt");
+
+            // Now, reset all changed variables
+            LevelGenerator.preset = temp_preset;
+            LevelGenerator.seed = temp_seed;
         }
 
         /// <summary>
@@ -98,13 +144,17 @@ namespace LevelGenerator
         /// <summary>
         /// This method simply sets up the variables for processing
         /// </summary>
-        private static void doSetup(int seed, LevelSize level_size)
+        private static void doSetup(int seed, LevelSize level_size, Preset preset)
         {
+            // SET THE PRESET
+            LevelGenerator.preset = preset;
+
             // CREATE THE RANDOM
             LevelGenerator.seed = seed;
             LevelGenerator.random = new System.Random(seed);
 
             // SET THE LEVEL SIZE
+            LevelGenerator.level_size = level_size;
             switch (level_size)
             {
                 // The char level_size controls the dimensions. Here, we set those dimensions
@@ -388,7 +438,7 @@ namespace LevelGenerator
 
             Texture2D texture = Resources.Load<Texture2D>(new_directory + @"level");
             texture = new Texture2D(cols_in_level, rows_in_level, TextureFormat.ARGB32, false);
-            
+
             for (int x = 0; x < cols_in_level; x++)
             {
                 for (int y = 0; y < rows_in_level; y++)
@@ -610,38 +660,11 @@ namespace LevelGenerator
         None = -1
     }
 
-    public enum TileColours
+    public enum Preset
     {
-        // Ground
-        Dirt = 'd',
-        Stone = 's',
-        Grass = 'g',
-        Brick = 'b',
-
-        // Air
-        Weeds = 'w',
-        Mushrooms = 'm',
-        Flowers = 'f',
-        NormalAir = 'a',
-
-        // Trap
-        BlackRose = '.',
-        Boulder = 'o',
-        Spikes = '∧',
-
-        // Treasure
-        Chest = 'c',
-        Gold = 'G',
-
-        // Enemy
-        Skeleton = '#',
-
-        // Start
-        House = '~',
-
-        // End
-        Flag = '<',
-
-        None = ' '
+        Dungeon,
+        Grass,
+        Cave,
+        General
     }
 }

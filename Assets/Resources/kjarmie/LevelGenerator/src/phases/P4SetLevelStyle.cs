@@ -149,7 +149,8 @@ namespace LevelGenerator.Phases
             }
 
             // PERFORM WAVE FUNCTION COLLAPSE
-            bool completed = DoWFC();
+            Preset preset = LevelGenerator.preset;
+            bool completed = DoWFC(preset);
             int i = 0;
             while (!completed)
             {
@@ -157,7 +158,7 @@ namespace LevelGenerator.Phases
                 LevelGenerator.final_tile_grid = new TileType[LevelGenerator.rows_in_level, LevelGenerator.cols_in_level];
 
                 // Perform WFC
-                completed = DoWFC();
+                completed = DoWFC(preset);
 
                 //TODO: Remove, since just for testing
                 i++;
@@ -173,7 +174,7 @@ namespace LevelGenerator.Phases
             Debug.Log("Number of times there were zero remaining options: " + num_zero_possibilities);
         }
 
-        private bool DoWFC()
+        private bool DoWFC(Preset preset)
         {
             // ASSIGN TILES
 
@@ -187,7 +188,7 @@ namespace LevelGenerator.Phases
             //    c) Propagate the change to all adjacent tiles recursively (ie. propagate to adjacent tiles, then propagate those changes to their adjacent tiles and so on)
 
             // Load the weights
-            weights = GetWeights(out symbol_count);
+            weights = GetWeights(out symbol_count, preset);
 
             // Get the total count
             total_tiles = 0;
@@ -391,8 +392,17 @@ namespace LevelGenerator.Phases
                 // Select a random type
                 index = random.Next(0, possibilities.Count);
 
-                // Make the selection
-                selection = possibilities[index];
+                try
+                {
+                    // Make the selection
+                    selection = possibilities[index];
+                }
+                catch (System.Exception e)
+                {
+                    Debug.Log(e.StackTrace);
+                }
+
+                
 
                 // Return
                 return selection;
@@ -582,7 +592,7 @@ namespace LevelGenerator.Phases
         /// This phase uses the Wave Function Collapse to decide what the wildcard tiles will be. The algorithm needs some examples to learn from
         /// before it can be used to create the level. In this method, the algorithm is provided examples and learns how to make the level.
         /// </summary>
-        internal void TrainWFC()
+        internal void TrainWFC(Preset preset)
         {
             // The process to train the weights is as follows:
             // 1. For each of the training files
@@ -614,7 +624,7 @@ namespace LevelGenerator.Phases
             }
 
             // GET TRAINING DATA
-            List<TileType[,]> training_data = GetTrainingData();    // will hold all the unique symbols
+            List<TileType[,]> training_data = GetTrainingData(preset);    // will hold all the unique symbols
             Dictionary<TileType, int> symbol_count = new Dictionary<TileType, int>();           // will hold the number of times each unique symbol appears
             List<int[,]> weights = new List<int[,]>();          // This list holds, for each symbol, the weights for all symbols and all directions
 
@@ -688,7 +698,7 @@ namespace LevelGenerator.Phases
             }
 
             // Save all the weights for later use
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\weights";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset + @"\weights";
             DeleteDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
             Directory.CreateDirectory(new_directory);
             StreamWriter writer;
@@ -712,7 +722,7 @@ namespace LevelGenerator.Phases
             }
 
             // Save the counts of the symbols
-            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4";
+            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset;
             Directory.CreateDirectory(new_directory);
             writer = new StreamWriter(new_directory + @"\counts.txt");
             int k;
@@ -734,14 +744,14 @@ namespace LevelGenerator.Phases
         /// Loads the weights for the WFC algorithm that were created in the training of the algorithm.
         /// </summary>
         /// <returns>A 3D array ([i,j,k]) of integers, where i = symbol, j = direction, k = neighbouring symbol.</returns>
-        private int[,,] GetWeights(out Dictionary<TileType, int> symbol_count)
+        private int[,,] GetWeights(out Dictionary<TileType, int> symbol_count, Preset preset)
         {
             // Get the 3D array
             int[,,] weights;
 
             // Get all of the files
             string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\weights";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset + @"\weights";
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
             int num_inputs = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
@@ -783,7 +793,7 @@ namespace LevelGenerator.Phases
 
             // Load the counts for the symbols
             symbol_count = new Dictionary<TileType, int>();
-            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4";
+            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset;
             reader = new StreamReader(new_directory + @"\counts.txt");
 
             while (!reader.EndOfStream)
@@ -920,14 +930,14 @@ namespace LevelGenerator.Phases
         }
 
 
-        private List<TileType[,]> GetTrainingData()
+        private List<TileType[,]> GetTrainingData(Preset preset)
         {
             // Get the list
             List<TileType[,]> training_data = new List<TileType[,]>();
 
             // Get all of the files
             string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\training";
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\training\" + preset;
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
             int num_inputs = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
@@ -979,6 +989,8 @@ namespace LevelGenerator.Phases
         private void DeleteDirectory(string path_name)
         {
             System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
+            if(di == null)
+                return;
 
             foreach (FileInfo file in di.GetFiles())
             {

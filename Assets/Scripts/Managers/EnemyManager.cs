@@ -15,9 +15,12 @@ namespace Bounce
         public static GameObject Enemies;
         public static Skeleton skeleton;
 
+        public static List<Skeleton> all_skeletons;
+
         static public Dictionary<string, Sprite> skeleton_assets; // controls all assets for the skeleton enemy
 
-        private void Awake() {
+        private void Awake()
+        {
             Enemies = GameObject.Find("Enemies");
             skeleton = GameObject.FindObjectOfType<Skeleton>();
         }
@@ -33,11 +36,24 @@ namespace Bounce
             skeleton_assets.Add("Right", skeleton_right);
         }
 
+        public static void RemoveEnemies()
+        {
+            if (all_skeletons == null)
+                return;
+            foreach (Skeleton skeleton in all_skeletons)
+            {
+                GameObject.Destroy(skeleton);
+            }
+        }
+
         public static void SpawnSkeleton(int row, int col)
         {
+            if (all_skeletons == null)
+                all_skeletons = new List<Skeleton>();
             Enemies = GameObject.Find("Enemies");
             skeleton = GameObject.FindObjectOfType<Skeleton>();
-            Skeleton new_skeleton = (Skeleton) Instantiate(skeleton, new Vector3(col, -row), Quaternion.identity);
+            Skeleton new_skeleton = (Skeleton)Instantiate(skeleton, new Vector3(col, -row), Quaternion.identity);
+            all_skeletons.Add(new_skeleton);
             new_skeleton.transform.parent = Enemies.transform;
         }
     }

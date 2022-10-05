@@ -21,6 +21,7 @@ namespace Bounce
         [SerializeField] private TileView tileViewPrefab;
         [SerializeField] private PlayerController player_avatar;
         [SerializeField] private Camera game_camera;
+        [SerializeField] private Arrow arrow_prefab;
 
         // UI Variables
         [SerializeField] GameObject pause_panel;
@@ -38,6 +39,7 @@ namespace Bounce
         // Level Generation Variables
         int seed;
         public static LevelSize level_size;
+        public Preset preset;
 
         public void OnPauseClicked()
         {
@@ -80,6 +82,80 @@ namespace Bounce
             int mainMenu = (int)Scenes.MainMenu;
 
             SceneManager.LoadScene(mainMenu);
+        }
+
+
+        // The following methods will rebuild the level in one of the specific styles
+
+        public void OnCaveClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Cave);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            // ChangeState(GameState.SpawnPlayer);
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        public void OnGrassClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Grass);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            //ChangeState(GameState.SpawnPlayer);
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        public void OnDungeonClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, Preset.Dungeon);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            //ChangeState(GameState.SpawnPlayer);
+
+            // Pause and unpause
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        private void ReInit()
+        {
+            // Destroy all enemies
+            EnemyManager.RemoveEnemies();
+
+            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
+
+            // Re-initialize all tiles in the grid
+            int k = 0;
+            // For each tile in the GameLevel grid, replace the tile in the level
+            for (int i = 0; i < GameLevel.rows; i++)
+            {
+                for (int j = 0; j < GameLevel.cols; j++)
+                {
+                    // Get the tile
+                    Tile tile = GameLevel.level_grid[i, j];
+
+                    // Re-initialize the tile view
+                    TileView tile_view = tileview_grid[i, j];
+                    tile_view.Init(tile);
+                }
+            }
         }
 
         public static event Action<GameState> OnBeforeStateChanged;
@@ -137,18 +213,18 @@ namespace Bounce
 
         private void HandlePreInit()
         {
-            // Here, we clear the output folder of the level generator to ensure storage doesnt fill up unnecessarily
-            String path_name = @"./Assets/Resources/kjarmie/LevelGenerator/output/level";
-            System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
+            // // Here, we clear the output folder of the level generator to ensure storage doesnt fill up unnecessarily
+            // String path_name = @"./Assets/Resources/kjarmie/LevelGenerator/outputs/level";
+            // System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
 
-            foreach (FileInfo file in di.GetFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
-            }
+            // foreach (FileInfo file in di.GetFiles())
+            // {
+            //     file.Delete();
+            // }
+            // foreach (DirectoryInfo dir in di.GetDirectories())
+            // {
+            //     dir.Delete(true);
+            // }
 
 
             // Update the game state to generate the level
@@ -163,7 +239,7 @@ namespace Bounce
             // Perform the level generation
             seed = new System.Random().Next();
             //seed = 823463766;
-            LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size);
+            LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size, Preset.General);
 
             // Once the level is generated, move to create the game view and update game state
             ChangeState(GameState.CreateGameView);
@@ -175,7 +251,8 @@ namespace Bounce
         private void HandleGameViewCreation()
         {
             // Create the GameLevel manager
-            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"level.txt");
+            // GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"level.txt");
+            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
 
             // Create some dummy tiles that frame the level
             for (int x = -10; x < GameLevel.cols + 10; x++)
@@ -183,7 +260,7 @@ namespace Bounce
                 for (int y = -10; y < GameLevel.rows + 10; y++)
                 {
                     // Only place blockers at positions if they are not in the bounds of the level
-                    if (!(x > 0 && x < GameLevel.cols && y > 0 && y < GameLevel.rows))
+                    if (!(x >= 0 && x < GameLevel.cols && y >= 0 && y < GameLevel.rows))
                     {
                         TileView tile_view = Instantiate(tileViewPrefab, new Vector3(x, -y), Quaternion.identity);
                         tile_view.Init(new Tile(TileArchetype.None, TileType.None, -1, -1));
@@ -232,9 +309,51 @@ namespace Bounce
             // Ensure the level is bordered
             //TODO: add some of the dummy tiles around the entire level
 
+            // Create the arrows which show the player the move through the level
+            List<int> level_path = LevelGenerator.LevelGenerator.level_path;
+            for (int i = 0; i < level_path.Count; i++)
+            {
+                // Get the id of the section
+                int cur_id = level_path[i];
+
+                // Get the id of the next section (if it exists)
+                if (i != level_path.Count - 1)
+                {
+                    int next_id = level_path[i + 1];
+
+                    // Get the centre of both sections
+                    int cur_x, cur_y;
+                    int next_x, next_y;
+
+                    GetSectionPosition(cur_id, out cur_x, out cur_y);
+                    GetSectionPosition(next_id, out next_x, out next_y);
+
+                    // Create an arrow from the current section to the next
+                    //Arrow arrow = Instantiate(arrow_prefab, new Vector3(cur_x, cur_y), Quaternion.identity);
+                }
+
+            }
+
             // Change the game state to spawn player
             ChangeState(GameState.SpawnPlayer);
 
+        }
+
+        /// <summary>
+        /// Gets the x, y coordinate of the section based on the id
+        /// </summary>
+        /// <param name="section_id">ID of the section.</param>
+        /// <param name="sec_x">The x coordinate.</param>
+        /// <param name="sec_y">The y coordinate.</param>
+        private void GetSectionPosition(int section_id, out int sec_x, out int sec_y)
+        {
+            // Get the coordinates of the section in the section grid
+            int row = section_id / LevelGenerator.LevelGenerator.vert_sections;
+            int col = section_id % LevelGenerator.LevelGenerator.vert_sections;
+
+            // Get the centre of the section in the game level
+            sec_x = (row + 1) * (5);
+            sec_y = -(col + 1) * (4);
         }
 
         /// <summary>
@@ -255,7 +374,7 @@ namespace Bounce
 
         private void HandlePlaying()
         {
-
+            OnResumeClicked();
         }
 
 
@@ -266,7 +385,7 @@ namespace Bounce
             float y = player_avatar.transform.position.y;
 
             float end_x = GameLevel.end_tile.col;
-            float end_y = - GameLevel.end_tile.row;
+            float end_y = -GameLevel.end_tile.row;
 
             if (x >= end_x - 0.5 && x < end_x + 0.5 && y >= end_y - 0.5 && y < end_y + 0.5)
             {

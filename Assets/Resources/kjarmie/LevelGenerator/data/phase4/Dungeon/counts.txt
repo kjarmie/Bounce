@@ -1,0 +1,16 @@
+Skeleton,1
+BlackRose,1
+Flag,1
+Gold,1
+NormalAir,229
+Brick,76
+Chest,1
+Dirt,2
+Flowers,1
+Grass,1
+Mushrooms,1
+Boulder,1
+Stone,1
+Weeds,1
+House,1
+Spikes,1

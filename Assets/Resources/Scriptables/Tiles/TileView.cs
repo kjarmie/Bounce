@@ -39,6 +39,9 @@ namespace Bounce
                 Debug.Log("");
             }
 
+            // Reset the collider 
+            this.gameObject.GetComponent<Collider2D>().enabled = true;
+
             switch (tile.type)
             {
                 // Air tiles
