@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using UnityEngine;
 
 namespace LevelGenerator.Phases
 {
@@ -10,7 +11,7 @@ namespace LevelGenerator.Phases
     {
         // Random generation
         protected int seed;                 // the random seed used for the entire generation process
-        protected Random random;            // the random number generator which is used every time a random number is needed
+        protected System.Random random;            // the random number generator which is used every time a random number is needed
 
         public P2GenSections()
         {
@@ -44,7 +45,7 @@ namespace LevelGenerator.Phases
                 for (int j = 0; j < LevelGenerator.vert_sections; j++)
                 {
                     // Get the section_type
-                    SectionType section_type = LevelGenerator.level_section_grid[i,j];
+                    SectionType section_type = LevelGenerator.level_section_grid[i, j];
 
                     // Generate the section
                     GenerateSection(section_id, section_type, row_start, row_start + LevelGenerator.rows_in_sec - 1, col_start, col_start + LevelGenerator.cols_in_sec - 1);
@@ -71,21 +72,10 @@ namespace LevelGenerator.Phases
         /// <param name="section_type">The type of the section.</param>
         private void GenerateSection(int section_id, SectionType section_type, int start_row, int end_row, int start_col, int end_col)
         {
-            // SELECT A PREFAB
-            string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
+            // SELECT A PREFAB AND LOAD INTO THE SECTION GRID
+            TileArchetype[,] section_tile_grid = LoadSection((int)section_type);
 
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\sections\8x10\prefabs\" + (int) section_type;
-            Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
-
-            int fCount = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
-
-            int chance = random.Next(0, fCount);    // the number of the file
-
-            StreamReader reader = new StreamReader(new_directory + @"\" + chance + ".txt");
-
-            // ASSIGN THE TILES FROM THE FILE TO THE MAIN LEVEL GRID AND TO INDIVIDUAL SECTION GRIDS
-            TileArchetype[,] section_tile_grid = new TileArchetype[LevelGenerator.rows_in_sec, LevelGenerator.cols_in_sec]; // holds the tiles for a section
-
+            // SET THE ITEMS IN THE SECTION GRID INTO THE LEVEL GRID
 
             int level_row = start_row;
             int level_col = start_col;
@@ -94,15 +84,12 @@ namespace LevelGenerator.Phases
                 // Reset the level_col
                 level_col = start_col;
 
-                // Load a line of types
-                char[] line = reader.ReadLine().ToCharArray();
-
                 int id = 0;
 
                 for (int j = 0; j < LevelGenerator.cols_in_sec; j++)
                 {
                     // Load the tile archetype from the text file
-                    TileArchetype tile_archetype = (TileArchetype)line[j];
+                    TileArchetype tile_archetype = section_tile_grid[i, j];
 
                     // Set tile in the level_tile_grid
                     LevelGenerator.level_tile_grid[level_row, level_col] = tile_archetype;
@@ -129,9 +116,6 @@ namespace LevelGenerator.Phases
                         }
                     }
 
-                    // Set tile in the section_tile_grid
-                    section_tile_grid[i, j] = tile_archetype;
-
                     // Increment the level_col
                     level_col++;
 
@@ -145,6 +129,68 @@ namespace LevelGenerator.Phases
 
             // OUTPUT THE TILE GRID
             PrintSectionTileGrid(section_id, section_tile_grid);
+        }
+
+
+        /// <summary>
+        /// This methods creates a 2D array of TileArchetypes from the specified section_type. There is a 50/50 chance that the level is mirrored.
+        /// </summary>
+        /// <param name="section_type"></param>
+        /// <returns></returns>
+        private TileArchetype[,] LoadSection(int section_type)
+        {
+            // Select the folder
+            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\sections\8x10\prefabs\" + section_type;
+            Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
+            int fCount = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
+            int chance = random.Next(0, fCount);    // the number of the file
+            StreamReader reader = new StreamReader(new_directory + @"\" + chance + ".txt");
+
+            // Assign all tiles from the grid into the section_grid
+            TileArchetype[,] section_tile_grid = new TileArchetype[LevelGenerator.rows_in_sec, LevelGenerator.cols_in_sec]; // holds the tiles for a section
+
+            double chance_mirrored = random.NextDouble();
+            bool mirrored = (chance_mirrored < 0.5) ? true : false;
+            for (int i = 0; i < LevelGenerator.rows_in_sec; i++)
+            {
+                // Load a line of types
+                char[] line = reader.ReadLine().ToCharArray();
+
+                int id = 0;
+
+                if (!mirrored)
+                {
+                    for (int j = 0; j < LevelGenerator.cols_in_sec; j++)
+                    {
+                        // Load the tile archetype from the text file
+                        TileArchetype tile_archetype = (TileArchetype)line[j];
+
+                        // Set tile in the section_tile_grid
+                        section_tile_grid[i, j] = tile_archetype;
+
+                        // Increment id
+                        id++;
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < LevelGenerator.cols_in_sec; j++)
+                    {
+                        // Load the tile archetype from the text file
+                        TileArchetype tile_archetype = (TileArchetype)line[j];
+
+                        // Set tile in the section_tile_grid
+                        section_tile_grid[i, LevelGenerator.cols_in_sec - j - 1] = tile_archetype;
+
+                        // Increment id
+                        id++;
+                    }
+                }
+            }
+
+            reader.Close();
+
+            return section_tile_grid;
         }
 
         public void PrintLevelTileGrid(String file_name)

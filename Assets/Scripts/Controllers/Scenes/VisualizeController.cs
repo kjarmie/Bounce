@@ -80,8 +80,6 @@ namespace Bounce
             RegenAndLoad();
         }
 
-
-
         private void RegenAndLoad()
         {
             // Get the WFC seed
@@ -95,6 +93,7 @@ namespace Bounce
             texture.filterMode = FilterMode.Point;
             texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
             image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+            image.color = new Color32(255, 255, 255, 255);
         }
 
         private void GenerateAndLoad(int seed)
@@ -107,6 +106,7 @@ namespace Bounce
             texture.filterMode = FilterMode.Point;
             texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
             image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+            image.color = new Color32(255, 255, 255, 255);
         }
 
 

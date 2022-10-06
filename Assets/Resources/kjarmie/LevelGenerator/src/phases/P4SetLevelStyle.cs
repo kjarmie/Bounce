@@ -78,10 +78,13 @@ namespace LevelGenerator.Phases
                 // Add only the options which are allowed by that type
                 switch (archetype)
                 {
-                    // TODO: Make actual assets for start and end tiles
-                    case TileArchetype.Air:
                     case TileArchetype.Start:
+                        possibilities.Add(TileType.House);
+                        break;
                     case TileArchetype.End:
+                        possibilities.Add(TileType.Flag);
+                        break;
+                    case TileArchetype.Air:                    
                         possibilities.Add(TileType.Flowers);
                         possibilities.Add(TileType.Mushrooms);
                         possibilities.Add(TileType.Weeds);
