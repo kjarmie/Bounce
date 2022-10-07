@@ -96,7 +96,7 @@ namespace LevelGenerator.Phases
             // Continuously try to find a path from the start to the end recursively until a solution is found
             while (true)
             {
-                bool still_processing = doFindSpelunkyPath(LevelGenerator.start_section_id, ' ');
+                bool still_processing = doFindPath(LevelGenerator.start_section_id, ' ');
 
                 if (!still_processing)
                 {
@@ -105,7 +105,7 @@ namespace LevelGenerator.Phases
             }
         }
 
-        private bool doFindSpelunkyPath(int cur_section_id, char prev_direction)
+        private bool doFindPath(int cur_section_id, char prev_direction)
         {
             // If the section is null, terminate 
             if (cur_section_id == -1)
@@ -250,7 +250,7 @@ namespace LevelGenerator.Phases
                 }
 
                 // Move to next section
-                processing = doFindSpelunkyPath(next_section_id, direction);
+                processing = doFindPath(next_section_id, direction);
 
                 // If processing is still true
                 if (processing)
@@ -338,6 +338,7 @@ namespace LevelGenerator.Phases
                 }
                 writer.Write("\n");
             }
+            writer.Flush();
             writer.Close();
         }
     }

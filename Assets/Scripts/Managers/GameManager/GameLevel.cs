@@ -29,98 +29,103 @@ namespace Bounce
             rows = 0;
             cols = 0;
 
-            // Load the file
             try
             {
-                StreamReader reader = new StreamReader(file_path);
-                string new_file = file_path;
-
-                // Read the data into the level_grid
                 // Determine the dimensions
-                string line = "";
-                while (!reader.EndOfStream)
+                using (StreamReader reader = new StreamReader(file_path))
                 {
-                    // Read a line
-                    line = reader.ReadLine(); // get a line
+                    string new_file = file_path;
 
-                    // Get the number of columns
-                    cols = line.Length;
-
-                    // Increment rows
-                    rows++;
-                }
-
-                // Get the number of columns = 1/2 line length with all , removed 
-                cols = (int)(0.5 * line.Replace(",", "").Length);
-
-                // Create the tile grid
-                level_grid = new Tile[rows, cols];
-
-                // Now, load the data into memory
-                reader = new StreamReader(file_path);
-                int i = 0;
-                string[] input;
-                while (!reader.EndOfStream)
-                {
-                    // Load a line
-                    line = reader.ReadLine();
-
-                    // Get a string array
-                    input = line.Split(",");
-
-                    // Read into a row
-                    for (int j = 0; j < cols; j++)
+                    // Read the data into the level_grid
+                    // Determine the dimensions
+                    string line = "";
+                    while (!reader.EndOfStream)
                     {
-                        // Get the char
-                        char _archetype = input[j][0];  // the archetype is the first char
-                        char _type = input[j][1];  // the type is the second char
+                        // Read a line
+                        line = reader.ReadLine(); // get a line
 
-                        // Get the archetype
-                        TileArchetype archetype = (TileArchetype)_archetype;
+                        // Get the number of columns
+                        cols = line.Length;
 
-                        // Get the type
-                        TileType type = (TileType)_type;
-
-                        // Check if the tile is an enemy
-                        if (archetype == TileArchetype.Enemy)
-                        {
-                            // TODO: Do enemy spawning
-                            EnemyManager.SpawnSkeleton(i, j);
-
-                            // The created tile should be a normal air tile so we override the type and archetype
-                            archetype = TileArchetype.Air;
-                            type = TileType.NormalAir;
-
-                        }
-
-                        // Create a new tile
-                        Tile tile = new Tile(archetype, type, i, j);
-
-                        // Add it to the grid
-                        level_grid[i, j] = tile;
-
-                        // Check for start and end tile
-                        if (archetype == TileArchetype.Start)
-                        {
-                            start_tile = tile;
-                        }
-                        else if (archetype == TileArchetype.End)
-                        {
-                            end_tile = tile;
-                        }
+                        // Increment rows
+                        rows++;
                     }
+                    // Get the number of columns = 1/2 line length with all , removed 
+                    cols = (int)(0.5 * line.Replace(",", "").Length);
 
-                    // Increment the row
-                    i++;
+                    // Create the tile grid
+                    level_grid = new Tile[rows, cols];
+
+                    reader.Close();
                 }
-                reader.Close();
+
+
+                // Load the file
+                using (StreamReader reader = new StreamReader(file_path))
+                {
+                    int i = 0;
+                    string[] input;
+                    string line = "";
+                    while (!reader.EndOfStream)
+                    {
+                        // Load a line
+                        line = reader.ReadLine();
+
+                        // Get a string array
+                        input = line.Split(",");
+
+                        // Read into a row
+                        for (int j = 0; j < cols; j++)
+                        {
+                            // Get the char
+                            char _archetype = input[j][0];  // the archetype is the first char
+                            char _type = input[j][1];  // the type is the second char
+
+                            // Get the archetype
+                            TileArchetype archetype = (TileArchetype)_archetype;
+
+                            // Get the type
+                            TileType type = (TileType)_type;
+
+                            // Check if the tile is an enemy
+                            if (archetype == TileArchetype.Enemy)
+                            {
+                                // TODO: Do enemy spawning
+                                EnemyManager.SpawnSkeleton(i, j);
+
+                                // The created tile should be a normal air tile so we override the type and archetype
+                                archetype = TileArchetype.Air;
+                                type = TileType.NormalAir;
+
+                            }
+
+                            // Create a new tile
+                            Tile tile = new Tile(archetype, type, i, j);
+
+                            // Add it to the grid
+                            level_grid[i, j] = tile;
+
+                            // Check for start and end tile
+                            if (archetype == TileArchetype.Start)
+                            {
+                                start_tile = tile;
+                            }
+                            else if (archetype == TileArchetype.End)
+                            {
+                                end_tile = tile;
+                            }
+                        }
+
+                        // Increment the row
+                        i++;
+                    }
+                    reader.Close();
+                }
             }
-            catch (System.IO.IOException e)
+            catch (System.Exception e)
             {
-                System.Console.WriteLine(e.StackTrace);
                 Debug.Log(e.StackTrace);
             }
-
         }
     }
 }

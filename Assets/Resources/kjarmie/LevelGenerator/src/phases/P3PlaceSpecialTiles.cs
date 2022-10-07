@@ -482,7 +482,7 @@ namespace LevelGenerator.Phases
             // Save all the weights for later use
             string local_dir = Directory.GetCurrentDirectory();
             string new_directory = local_dir + @"\data\phase3\weights\";
-            DeleteDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
+            ClearDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
             Directory.CreateDirectory(new_directory);
             StreamWriter writer;
             for (int i = 0; i < weights.Count; i++)
@@ -500,6 +500,7 @@ namespace LevelGenerator.Phases
                     writer.Write(w[p, q]);
                     writer.Write("\n");
                 }
+                writer.Flush();
                 writer.Close();
 
             }
@@ -517,6 +518,7 @@ namespace LevelGenerator.Phases
             }
             str = archetypes[k] + "," + symbol_count[archetypes[k]];
             writer.Write(str);
+            writer.Flush();
             writer.Close();
         }
 
@@ -682,6 +684,7 @@ namespace LevelGenerator.Phases
                     rows++;
                 }
                 cols = line.Length;
+                reader.Close();
 
                 // Now, load the data into memory
                 input_grid = new TileArchetype[rows, cols];
@@ -711,7 +714,7 @@ namespace LevelGenerator.Phases
             return training_data;
         }
 
-        private void DeleteDirectory(string path_name)
+        private void ClearDirectory(string path_name)
         {
             System.IO.DirectoryInfo di = new DirectoryInfo(path_name);
 
@@ -749,6 +752,7 @@ namespace LevelGenerator.Phases
                 }
                 writer.Write("\n");
             }
+            writer.Flush();
             writer.Close();
         }
     }

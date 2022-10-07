@@ -219,6 +219,7 @@ namespace LevelGenerator.Phases
                 }
                 writer.Write("\n");
             }
+            writer.Flush();
             writer.Close();
         }
 
@@ -246,6 +247,7 @@ namespace LevelGenerator.Phases
                 }
                 writer.Write("\n");
             }
+            writer.Flush();
             writer.Close();
         }
     }

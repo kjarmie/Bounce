@@ -667,6 +667,7 @@ namespace LevelGenerator.Phases
                     writer.Write(w[p, q]);
                     writer.Write("\n");
                 }
+                writer.Flush();
                 writer.Close();
 
             }
@@ -685,9 +686,8 @@ namespace LevelGenerator.Phases
             }
             str = types[k] + "," + symbol_count[types[k]];
             writer.Write(str);
+            writer.Flush();
             writer.Close();
-
-            Console.WriteLine();
         }
 
         /// <summary>
@@ -961,11 +961,6 @@ namespace LevelGenerator.Phases
 
             string new_file = new_directory + file_name;
 
-            if (File.Exists(new_file))
-            {
-                File.Delete(new_file);
-            }
-
             StreamWriter writer = new StreamWriter(new_file);
 
             for (int i = 0; i < LevelGenerator.rows_in_level; i++)
@@ -1004,6 +999,7 @@ namespace LevelGenerator.Phases
                 writer.Write(tile);
                 writer.Write("\n");
             }
+            writer.Flush();
             writer.Close();
         }
     }

@@ -423,13 +423,12 @@ namespace LevelGenerator
 
             string new_file = new_directory + file_name;
 
-            if (File.Exists(new_file))
-            {
-                File.Delete(new_file);
-            }
+            // if (File.Exists(new_file))
+            // {
+            //     File.Delete(new_file);
+            // }
 
             StreamWriter writer = new StreamWriter(new_file);
-
 
             int i = 0;
             int j = 0;
@@ -479,6 +478,7 @@ namespace LevelGenerator
 
             }
             // Close the writer
+            writer.Flush();
             writer.Close();
 
 

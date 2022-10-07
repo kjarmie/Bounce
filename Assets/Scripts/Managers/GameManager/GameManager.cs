@@ -79,6 +79,95 @@ namespace Bounce
             SceneManager.LoadScene(mainMenu);
         }
 
+        // The following methods will rebuild the level in one of the specific styles
+        public void OnCaveClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int wfc_seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, wfc_seed, Preset.Cave);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            // ChangeState(GameState.SpawnPlayer);
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        public void OnGeneralClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int wfc_seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, wfc_seed, Preset.General);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            // ChangeState(GameState.SpawnPlayer);
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        public void OnGrassClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int wfc_seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, wfc_seed, Preset.Grass);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            //ChangeState(GameState.SpawnPlayer);
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        public void OnDungeonClicked()
+        {
+            // Regenerate the level from phase 3 onward
+            int wfc_seed = new System.Random().Next();
+            LevelGenerator.LevelGenerator.ChangePreset(seed, wfc_seed, Preset.Dungeon);
+
+            // Reload the game level
+            ReInit();
+
+            // Change the game state to spawn player
+            //ChangeState(GameState.SpawnPlayer);
+
+            // Pause and unpause
+            OnPauseClicked();
+            OnResumeClicked();
+        }
+
+        private void ReInit()
+        {
+            // Destroy all enemies
+            EnemyManager.RemoveEnemies();
+
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\level\level.txt";
+            GameLevel.CreateGameLevelFromFile(new_directory);
+
+            // Re-initialize all tiles in the grid
+            int k = 0;
+            // For each tile in the GameLevel grid, replace the tile in the level
+            for (int i = 0; i < GameLevel.rows; i++)
+            {
+                for (int j = 0; j < GameLevel.cols; j++)
+                {
+                    // Get the tile
+                    Tile tile = GameLevel.level_grid[i, j];
+
+                    // Re-initialize the tile view
+                    TileView tile_view = tileview_grid[i, j];
+                    tile_view.Init(tile);
+                }
+            }
+        }
+
         public static event Action<GameState> OnBeforeStateChanged;
         public static event Action<GameState> OnAfterStateChanged;
 
@@ -238,8 +327,10 @@ namespace Bounce
                     // Determine how to rotate the arrow by determining to direction from the current section to the next
                     LevelGenerator.Direction direction = LevelGenerator.LevelGenerator.NextSectionDirection(cur_id, next_id);
                     double rotation = 0;
-                    if(direction != Direction.None) {
-                        switch(direction) {
+                    if (direction != Direction.None)
+                    {
+                        switch (direction)
+                        {
                             case Direction.Up:
                                 rotation = 90;
                                 break;
@@ -276,7 +367,7 @@ namespace Bounce
             // Get the coordinates of the section in the section grid
             int row = section_id / LevelGenerator.LevelGenerator.vert_sections;
             int col = section_id % LevelGenerator.LevelGenerator.vert_sections;
-            
+
             sec_y = -4 - (row * 8);
             sec_x = 5 + (col * 10);
         }
