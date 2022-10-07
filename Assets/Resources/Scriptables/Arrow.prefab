@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6931565261808538668}
   - component: {fileID: 1854974862386808074}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Head1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72,7 +72,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.9647059, g: 1, b: 0, a: 1}
   m_FlipX: 0
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 738425939941559842}
   - component: {fileID: 7211181511139383885}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.9647059, g: 1, b: 0, a: 1}
   m_FlipX: 0
@@ -178,7 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7401810196581432320}
   - component: {fileID: 8733187383245853000}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Head2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.9647059, g: 1, b: 0, a: 1}
   m_FlipX: 0
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4668260938705713849}
   - component: {fileID: 8685223774754154352}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}

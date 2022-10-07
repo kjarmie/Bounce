@@ -291,7 +291,8 @@ namespace LevelGenerator.Phases
         {
 
             // Create new directory
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P1\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\P1\";
             Directory.CreateDirectory(new_directory);
 
             if (File.Exists(new_directory + "paths.txt"))
@@ -315,8 +316,8 @@ namespace LevelGenerator.Phases
         private void PrintGridOfSections()
         {
             // Create new directory
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P1\" + seed + @"\";
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P1\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\P1\";
             Directory.CreateDirectory(new_directory);
 
             if (File.Exists(new_directory + "section_grid.txt"))

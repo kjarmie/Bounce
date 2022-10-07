@@ -33,6 +33,7 @@ namespace Bounce
         // Terrain Variables
         [SerializeField] private GameObject terrain;
         [SerializeField] private GameObject blockers;
+        [SerializeField] private GameObject arrows;
         private TileView[,] tileview_grid;
 
         // Level Generation Variables
@@ -157,7 +158,9 @@ namespace Bounce
         private void HandleGameViewCreation()
         {
             // Create the GameLevel manager
-            GameLevel.CreateGameLevelFromFile(@".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\level.txt");
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\level\level.txt";
+            GameLevel.CreateGameLevelFromFile(new_directory);
 
             // Create some dummy tiles that frame the level
             for (int x = -10; x < GameLevel.cols + 10; x++)
@@ -230,7 +233,7 @@ namespace Bounce
                     // Create an arrow from the current section to the next
                     Arrow arrow = Instantiate(arrow_prefab, new Vector3(cur_x, cur_y), Quaternion.identity);
                     arrow.name = String.Format(@"Arrow ({0} -> {1})", cur_id, next_id);
-                    //arrow.transform.Rotate(arrow.transform.position, 90);
+                    arrow.transform.parent = arrows.transform;
 
                     // Determine how to rotate the arrow by determining to direction from the current section to the next
                     LevelGenerator.Direction direction = LevelGenerator.LevelGenerator.NextSectionDirection(cur_id, next_id);

@@ -91,7 +91,7 @@ namespace Bounce
             // Display the texture on the screen
             Texture2D texture = new Texture2D(1, 1);
             texture.filterMode = FilterMode.Point;
-            texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
+            texture.LoadImage(File.ReadAllBytes(Directory.GetCurrentDirectory() + @"\outputs\level\level.png"), false);
             image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
             image.color = new Color32(255, 255, 255, 255);
         }
@@ -104,7 +104,7 @@ namespace Bounce
             // Display the texture on the screen
             Texture2D texture = new Texture2D(1, 1);
             texture.filterMode = FilterMode.Point;
-            texture.LoadImage(File.ReadAllBytes(@"./Assets/Resources/kjarmie/LevelGenerator/outputs/level/level.png"), false);
+            texture.LoadImage(File.ReadAllBytes(Directory.GetCurrentDirectory() + @"\outputs\level\level.png"), false);
             image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
             image.color = new Color32(255, 255, 255, 255);
         }

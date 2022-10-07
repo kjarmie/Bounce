@@ -417,7 +417,8 @@ namespace LevelGenerator
             // Create new directory
             //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
             //string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\" + seed + @"\";
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\level\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\level\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;
@@ -482,9 +483,8 @@ namespace LevelGenerator
 
 
             // Now, create an image of the output
-            // Create the bitmap
-
-            Texture2D texture = Resources.Load<Texture2D>(new_directory + @"level");
+            // Create the texture
+            Texture2D texture;
             texture = new Texture2D(cols_in_level, rows_in_level, TextureFormat.ARGB32, false);
 
             for (int x = 0; x < cols_in_level; x++)
@@ -503,14 +503,14 @@ namespace LevelGenerator
             }
 
             // Save the texture
-            File.WriteAllBytes(new_directory + @"level.png", texture.EncodeToPNG());
+            File.WriteAllBytes(new_directory + "level.png", texture.EncodeToPNG());
         }
 
-/// <summary>
-/// This method will return, for each TileType, the associated Color32. Used when producing the output PNG.
-/// </summary>
-/// <param name="type">The TileType of a tile. </param>
-/// <returns>A Color32 that is associated with the TileType. </returns>
+        /// <summary>
+        /// This method will return, for each TileType, the associated Color32. Used when producing the output PNG.
+        /// </summary>
+        /// <param name="type">The TileType of a tile. </param>
+        /// <returns>A Color32 that is associated with the TileType. </returns>
         private static Color32 GetColor32(TileType type)
         {
             Color32 tile_color = new Color32(0, 0, 0, 0);

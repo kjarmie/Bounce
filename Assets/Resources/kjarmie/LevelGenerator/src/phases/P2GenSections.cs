@@ -140,7 +140,9 @@ namespace LevelGenerator.Phases
         private TileArchetype[,] LoadSection(int section_type)
         {
             // Select the folder
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\sections\8x10\prefabs\" + section_type;
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\sections\8x10\prefabs\" + section_type;
+
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
             int fCount = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
             int chance = random.Next(0, fCount);    // the number of the file
@@ -196,7 +198,8 @@ namespace LevelGenerator.Phases
         public void PrintLevelTileGrid(String file_name)
         {
             // Create new directory
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\P2\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;
@@ -222,7 +225,8 @@ namespace LevelGenerator.Phases
         private void PrintSectionTileGrid(int section_id, TileArchetype[,] section_tile_grid)
         {
             // Create new directory
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P2\sections\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\P2\sections\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + "section_" + section_id + "_tile_grid.txt";

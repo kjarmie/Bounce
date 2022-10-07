@@ -647,14 +647,15 @@ namespace LevelGenerator.Phases
             }
 
             // Save all the weights for later use
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset + @"\weights";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\phase4\" + preset + @"\weights\";
             ClearDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
             Directory.CreateDirectory(new_directory);
             StreamWriter writer;
             for (int i = 0; i < weights.Count; i++)
             {
                 int[,] w = weights[i];
-                writer = new StreamWriter(new_directory + @"\" + i + ".txt");
+                writer = new StreamWriter(new_directory + i + ".txt");
 
                 for (int p = 0; p < 8; p++)
                 {
@@ -671,9 +672,9 @@ namespace LevelGenerator.Phases
             }
 
             // Save the counts of the symbols
-            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset;
+            new_directory = local_dir +  @"\data\phase4\" + preset + @"\";
             Directory.CreateDirectory(new_directory);
-            writer = new StreamWriter(new_directory + @"\counts.txt");
+            writer = new StreamWriter(new_directory + "counts.txt");
             int k;
             string str;
             for (k = 0; k < symbol_count.Count - 1; k++)
@@ -699,8 +700,8 @@ namespace LevelGenerator.Phases
             int[,,] weights;
 
             // Get all of the files
-            string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset + @"\weights";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\phase4\" + preset + @"\weights\";
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
             int num_inputs = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
@@ -718,7 +719,7 @@ namespace LevelGenerator.Phases
             for (i = 0; i < num_inputs; i++)
             {
                 // Obtain the file
-                reader = new StreamReader(new_directory + @"\" + i + @".txt");
+                reader = new StreamReader(new_directory + i + @".txt");
 
                 // Read the data into the array
                 string[] line = new string[num_inputs];
@@ -742,8 +743,8 @@ namespace LevelGenerator.Phases
 
             // Load the counts for the symbols
             symbol_count = new Dictionary<TileType, int>();
-            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\" + preset;
-            reader = new StreamReader(new_directory + @"\counts.txt");
+            new_directory = local_dir + @"\data\phase4\" + preset + @"\";
+            reader = new StreamReader(new_directory + "counts.txt");
 
             while (!reader.EndOfStream)
             {
@@ -885,8 +886,8 @@ namespace LevelGenerator.Phases
             List<TileType[,]> training_data = new List<TileType[,]>();
 
             // Get all of the files
-            string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase4\training\" + preset;
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\phase4\training\" + preset + @"\";
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
             int num_inputs = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
@@ -894,7 +895,7 @@ namespace LevelGenerator.Phases
             for (int i = 0; i < num_inputs; i++)
             {
                 // Load a file
-                reader = new StreamReader(new_directory + @"\" + i + @".txt");
+                reader = new StreamReader(new_directory + i + ".txt");
                 TileType[,] input_grid; // will hold the symbols from the file
 
                 // Determine the dimensions
@@ -909,7 +910,7 @@ namespace LevelGenerator.Phases
 
                 // Now, load the data into memory
                 input_grid = new TileType[rows, cols];
-                reader = new StreamReader(new_directory + @"\" + i + @".txt");
+                reader = new StreamReader(new_directory + i + ".txt");
                 int row = 0;
                 while (!reader.EndOfStream)
                 {
@@ -954,9 +955,8 @@ namespace LevelGenerator.Phases
         private void PrintFinalGrid(String file_name)
         {
             // Create new directory
-            //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P4\" + seed + @"\";
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P4\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\P4\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;

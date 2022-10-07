@@ -180,8 +180,6 @@ namespace LevelGenerator.Phases
             // Randomly select a symbol
             int index = random.Next(0, options.Count);
 
-            // TODO: SELECT A SYMBOL BASED ON THE WEIGHTED INPUT
-
             // To get a symbol, we check the proportion of times that symbol appears, and then base our value on that. 
 
             // We process all the remaining options. For each one, we add its cumulative probability to a list. 
@@ -211,8 +209,7 @@ namespace LevelGenerator.Phases
 
             // Run until a value is found
             bool still_processing = true;
-            int TEST = 0;
-            while (still_processing && TEST < 100)
+            while (still_processing)
             {
                 // Now, get a random probability
                 double probability = random.NextDouble();
@@ -234,7 +231,6 @@ namespace LevelGenerator.Phases
                         break;
                     }
                 }
-                TEST++;
             }
 
             return selection;
@@ -267,7 +263,7 @@ namespace LevelGenerator.Phases
                     {
                         // Get a list of all possible symbols that can appear in that direction
                         List<TileArchetype> valid = new List<TileArchetype>();
-                        for (int k = 0; k < weights.GetUpperBound(2); k++)  // TODO: also runs to archetypes.Count()
+                        for (int k = 0; k < weights.GetUpperBound(2); k++)
                         {
                             // Get the symbol at position k 
                             TileArchetype symbol = archetypes[k];
@@ -285,7 +281,6 @@ namespace LevelGenerator.Phases
 
             // Once the immediate neighbours in the 8 cardinal/ordinal directions, these need to then have their neighbours updated
             // For every tile in the 8 directions, update their neighbours
-            //TODO: Do the update for cascading propagation
             doCascadePropagation(remaining, row, col);
         }
 
@@ -475,7 +470,7 @@ namespace LevelGenerator.Phases
                                         int index = archetypes.IndexOf(symbol_in_direction);
 
                                         // Increment the weight
-                                        w[(int)d, index] += 1; 
+                                        w[(int)d, index] += 1;
                                     }   // otherwise, continue to the other directions
                                 }
                             }
@@ -485,7 +480,8 @@ namespace LevelGenerator.Phases
             }
 
             // Save all the weights for later use
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase3\weights";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\phase3\weights\";
             DeleteDirectory(new_directory); // clear the directory (gets rid of previous weights so no old values are left)
             Directory.CreateDirectory(new_directory);
             StreamWriter writer;
@@ -509,9 +505,8 @@ namespace LevelGenerator.Phases
             }
 
             // Save the counts of the symbols
-            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase3";
-            Directory.CreateDirectory(new_directory);
-            writer = new StreamWriter(new_directory + @"\counts.txt");
+            new_directory = local_dir + @"\data\phase3\";
+            writer = new StreamWriter(new_directory + "counts.txt");
             int k;
             string str;
             for (k = 0; k < symbol_count.Count - 1; k++)
@@ -593,8 +588,8 @@ namespace LevelGenerator.Phases
             int[,,] weights;
 
             // Get all of the files
-            string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase3\weights";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\phase3\weights\";
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
             int num_inputs = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
@@ -612,7 +607,7 @@ namespace LevelGenerator.Phases
             for (i = 0; i < num_inputs; i++)
             {
                 // Obtain the file
-                reader = new StreamReader(new_directory + @"\" + i + @".txt");
+                reader = new StreamReader(new_directory + i + ".txt");
 
                 // Read the data into the array
                 string[] line = new string[num_inputs];
@@ -636,8 +631,8 @@ namespace LevelGenerator.Phases
 
             // Load the counts for the symbols
             symbol_count = new Dictionary<TileArchetype, int>();
-            new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase3";
-            reader = new StreamReader(new_directory + @"\counts.txt");
+            new_directory = local_dir + @"\data\phase3\";
+            reader = new StreamReader(new_directory + "counts.txt");
 
             while (!reader.EndOfStream)
             {
@@ -666,8 +661,8 @@ namespace LevelGenerator.Phases
             List<TileArchetype[,]> training_data = new List<TileArchetype[,]>();
 
             // Get all of the files
-            string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\data\phase3\training";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\data\phase3\training\";
             Directory.CreateDirectory(new_directory);   // create the folder if it doesnt already exist
 
             int num_inputs = Directory.GetFiles(new_directory, "*.txt", SearchOption.TopDirectoryOnly).Length;  // the number of files in the folder
@@ -675,7 +670,7 @@ namespace LevelGenerator.Phases
             for (int i = 0; i < num_inputs; i++)
             {
                 // Load a file
-                reader = new StreamReader(new_directory + @"\" + i + @".txt");
+                reader = new StreamReader(new_directory + i + ".txt");
                 TileArchetype[,] input_grid; // will hold the symbols from the file
 
                 // Determine the dimensions
@@ -690,7 +685,7 @@ namespace LevelGenerator.Phases
 
                 // Now, load the data into memory
                 input_grid = new TileArchetype[rows, cols];
-                reader = new StreamReader(new_directory + @"\" + i + @".txt");
+                reader = new StreamReader(new_directory + i + ".txt");
                 int row = 0;
                 while (!reader.EndOfStream)
                 {
@@ -733,9 +728,8 @@ namespace LevelGenerator.Phases
         public void PrintLevelTileGrid(String file_name)
         {
             // Create new directory
-            //string path_name = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            // string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P3\" + seed + @"\";
-            string new_directory = @".\Assets\Resources\kjarmie\LevelGenerator\outputs\P3\";
+            string local_dir = Directory.GetCurrentDirectory();
+            string new_directory = local_dir + @"\outputs\P3\";
             Directory.CreateDirectory(new_directory);
 
             string new_file = new_directory + file_name;
