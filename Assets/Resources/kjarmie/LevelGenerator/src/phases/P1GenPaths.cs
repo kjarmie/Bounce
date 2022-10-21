@@ -54,23 +54,26 @@ namespace LevelGenerator.Phases
             // The process for finding a path is as follows:
             // 1. Pass over all sections and assign random section types
             // 2. Pass over all sections again, starting at the start section and find the path as follows:
-            //    a) While still processing, select a random direct to move in
-            //    b) Based on the direction, set the path type
+            //    a) While still processing, select a random direction to move in
             //    b) If that section is valid, add it to the main path
-            //    c) Based on the direction and previous direction, select the section type of the cur and next sections
+            //    c) If all sections have been checked and none of the directions are valid, 
+            //       remove the section from the path and return to the previous section to try a new direction
+            //    d) Based on the direction and previous direction, select the section type of the cur and next sections
             //       i) If direction is left or right
             //          prev_direction = down   -> section is Landing (4), next is Normal (1)
             //          prev_direction = up     -> section is JumpLanding (5), next is Normal (1)
             //          default                 -> section is Normal (1), next is Normal (1)
 
             //       ii) If direction is up
+            //          prev_direction = up     -> section is Through (6), next is JumpLanding (3)
             //          default                 -> section is Normal (1), next is Normal (1)
 
             //       iii) If direction is down
             //          prev_direction = down   -> section is Through (6), next is Landing (3)
             //          default                 -> section is Drop (2), next is Landing (3)
 
-            //    d) If the newly added section is the end section, end
+            //    e) If the current section is in the last row and the selected direction is down, 
+            //       make the current section the end section and end
 
 
             // Pass over all section except start and end and set random section type

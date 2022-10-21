@@ -234,6 +234,7 @@ namespace Bounce
         {
             // Perform the level generation
             seed = new System.Random().Next();
+            Debug.Log("Seed: " + seed);
             //seed = 823463766;
             LevelGenerator.LevelGenerator.GenerateLevel(seed, level_size, Preset.General);
 
